@@ -68,6 +68,7 @@ async def test_agent_message_endpoint(client: AsyncClient):
     response = await client.post("/agent/message", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "received"
+    assert data["status"] == "processed"
     assert data["sender_id"] == "+1234567890"
     assert data["channel"] == "whatsapp"
+    assert "reply" in data

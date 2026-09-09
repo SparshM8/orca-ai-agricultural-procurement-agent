@@ -15,6 +15,9 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
+from orca.agent.orchestrator import orchestrator
+
+
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application instance."""
     app = FastAPI(
@@ -51,11 +54,18 @@ def create_app() -> FastAPI:
     @app.post("/agent/message", tags=["Agent"])
     async def process_agent_message(message: InboundMessage):
         """Process normalized inbound conversation message (SRS Section 14)."""
+        conversation_id = f"conv_{message.sender_id}"
+        outbound = await orchestrator.process_message(
+            conversation_id=conversation_id,
+            message_text=message.text,
+            farmer_id=message.sender_id,
+        )
         return {
-            "status": "received",
+            "status": "processed",
             "sender_id": message.sender_id,
             "channel": message.channel,
-            "message": "Message received by agent orchestrator foundation.",
+            "reply": outbound.text,
+            "metadata": outbound.metadata,
         }
 
     return app
