@@ -86,28 +86,38 @@ class AgentToolRegistry:
         produce: str,
         quantity: float,
         unit: str,
-        validated_rate: float,
         pickup_location: str,
+        validated_rate: Optional[float] = None,
         conversation_id: Optional[str] = None,
         region_code: str = "GLOBAL_DEFAULT",
     ) -> Dict[str, Any]:
-        """Tool 5: create_order(validated_order) - create an auditable order."""
-        order = order_service.create_order(
-            farmer_id=farmer_id,
-            produce_type=produce,
-            quantity=quantity,
-            unit=unit,
-            validated_rate=validated_rate,
-            pickup_location=pickup_location,
-            region_code=region_code,
-            conversation_id=conversation_id,
-        )
-        return {
-            "order_id": order.id,
-            "status": order.status.value,
-            "total_amount": order.total_amount,
-            "currency": order.currency,
-        }
+        """Tool 5: create_order(validated_order) - create an auditable order.
+        
+        Cannot bypass backend validation or fabricate prices.
+        """
+        try:
+            order = order_service.create_order(
+                farmer_id=farmer_id,
+                produce_type=produce,
+                quantity=quantity,
+                unit=unit,
+                pickup_location=pickup_location,
+                validated_rate=validated_rate,
+                region_code=region_code,
+                conversation_id=conversation_id,
+            )
+            return {
+                "success": True,
+                "order_id": order.id,
+                "status": order.status.value,
+                "total_amount": order.total_amount,
+                "currency": order.currency,
+            }
+        except ValueError as err:
+            return {
+                "success": False,
+                "error": str(err),
+            }
 
     @staticmethod
     def create_bill(order_id: str) -> Dict[str, Any]:

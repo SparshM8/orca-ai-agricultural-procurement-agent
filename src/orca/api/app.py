@@ -1,9 +1,18 @@
-"""FastAPI application factory and foundation routes."""
-
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from orca.core.config import settings
 from orca.domain.schemas import InboundMessage
 from orca.services.pricing import pricing_service
+from orca.db.session import engine
+from orca.db.repository import init_db
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan managing database initialization and teardown."""
+    await init_db(engine)
+    yield
+    await engine.dispose()
 
 
 def create_app() -> FastAPI:
@@ -12,6 +21,7 @@ def create_app() -> FastAPI:
         title=settings.APP_NAME,
         version=settings.APP_VERSION,
         description="Global AI Agricultural Procurement Agent API",
+        lifespan=lifespan,
     )
 
     @app.get("/health", tags=["System"])
