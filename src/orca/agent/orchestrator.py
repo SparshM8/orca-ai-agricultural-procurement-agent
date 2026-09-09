@@ -14,9 +14,10 @@ from typing import Dict, Optional, Tuple, List, Any
 from pydantic import BaseModel, Field
 
 from orca.domain.schemas import ExtractedOffer, InboundMessage, OutboundMessage
-from orca.domain.state_machine import OrderState
+from orca.domain.state_machine import OrderState, validate_transition
 from orca.services.pricing import pricing_service
 from orca.services.billing import billing_service
+from orca.services.order import order_service
 from orca.core.regional import get_regional_profile
 
 
@@ -28,6 +29,7 @@ class DialogueContext(BaseModel):
     region_code: str = "GLOBAL_DEFAULT"
     state: OrderState = OrderState.OFFER_RECEIVED
     offer: ExtractedOffer = Field(default_factory=ExtractedOffer)
+    current_order_id: Optional[str] = None
     history: List[Tuple[str, str]] = Field(default_factory=list)
     last_clarification_field: Optional[str] = None
 
@@ -177,6 +179,41 @@ class RuleBasedPatternExtractor(BaseOfferExtractor):
         return offer
 
 
+def is_confirmation_intent(text: str) -> bool:
+    """Identify if user message represents an explicit confirmation."""
+    cleaned = re.sub(r"[^\w\s]", "", text.strip().lower())
+    confirm_phrases = {
+        "confirm",
+        "confirmed",
+        "yes",
+        "yes confirm",
+        "yes confirmed",
+        "yes i accept",
+        "i accept",
+        "accept",
+        "accepted",
+        "yes i agree",
+        "i agree",
+        "agree",
+        "proceed",
+        "sounds good",
+        "ok",
+        "okay",
+        "sure",
+        "deal",
+    }
+    if cleaned in confirm_phrases:
+        return True
+    words = cleaned.split()
+    if words and words[0] in ["confirm", "confirmed"]:
+        return True
+    if len(words) >= 2 and words[0] == "yes" and words[1] in ["i", "confirm", "confirmed", "accept", "agree", "proceed"]:
+        return True
+    if cleaned.startswith("i accept") or cleaned.startswith("i agree"):
+        return True
+    return False
+
+
 class AgentOrchestrator:
     """Conversational agent orchestrator managing extraction, dialogue state, and rate lookup."""
 
@@ -208,7 +245,122 @@ class AgentOrchestrator:
         context = self.get_or_create_context(conversation_id, farmer_id, region_code)
         context.history.append(("farmer", message_text))
 
-        # 1. Check for greeting or introductory messages
+        # 0. Check for explicit farmer confirmation
+        if is_confirmation_intent(message_text):
+            # Case 0A: Duplicate confirmation on an already confirmed order
+            if context.state == OrderState.ORDER_CONFIRMED and context.current_order_id:
+                existing_order = order_service.get_order(context.current_order_id)
+                reply = (
+                    f"This transaction has already been confirmed.\n"
+                    f"- Order ID: {context.current_order_id}\n"
+                    f"- Produce: {context.offer.quantity:g} {context.offer.unit} of {context.offer.produce_type}\n"
+                    f"- Authoritative Rate: {existing_order.currency if existing_order else 'USD'} {existing_order.validated_rate if existing_order else 0.0:.2f} per {context.offer.unit}\n"
+                    f"- Total Amount: {existing_order.currency if existing_order else 'USD'} {existing_order.total_amount if existing_order else 0.0:.2f}\n"
+                    f"- Status: ORDER_CONFIRMED\n\n"
+                    f"Our logistics runner will be assigned for pickup as scheduled."
+                )
+                context.history.append(("agent", reply))
+                return OutboundMessage(
+                    recipient_id=farmer_id,
+                    text=reply,
+                    metadata={
+                        "state": context.state.value,
+                        "order_id": context.current_order_id,
+                        "is_duplicate": True,
+                    },
+                )
+
+            # Case 0B: Awaiting confirmation -> Create validated order idempotently!
+            if context.state == OrderState.AWAITING_FARMER_CONFIRMATION:
+                # Revalidate required data before order creation
+                if (
+                    not context.offer.produce_type
+                    or context.offer.quantity is None
+                    or context.offer.quantity <= 0
+                    or not context.offer.unit
+                    or not context.offer.pickup_location
+                ):
+                    context.state = OrderState.DETAILS_PENDING
+                    reply = "Cannot confirm transaction: some required details are missing or invalid."
+                    context.history.append(("agent", reply))
+                    return OutboundMessage(recipient_id=farmer_id, text=reply)
+
+                # Authoritative rate & deterministic creation via order_service
+                order = await order_service.create_order_async(
+                    farmer_id=farmer_id,
+                    produce_type=context.offer.produce_type,
+                    quantity=context.offer.quantity,
+                    unit=context.offer.unit,
+                    pickup_location=context.offer.pickup_location,
+                    region_code=region_code,
+                    conversation_id=conversation_id,
+                )
+
+                # Transition state to ORDER_CONFIRMED
+                context.state = OrderState.ORDER_CONFIRMED
+                context.current_order_id = order.id
+
+                confirmation_reply = (
+                    f"Order Confirmed! Your procurement order has been successfully created.\n"
+                    f"- Order ID: {order.id}\n"
+                    f"- Produce: {order.quantity:g} {order.unit} of {order.produce_type}\n"
+                    f"- Authoritative Rate: {order.currency} {order.validated_rate:.2f} per {order.unit}\n"
+                    f"- Total Amount: {order.currency} {order.total_amount:.2f}\n"
+                    f"- Pickup Location: {order.pickup_location}\n"
+                    f"- Status: ORDER_CONFIRMED\n\n"
+                    f"Thank you for confirming. Your order is now registered with our procurement desk."
+                )
+                context.history.append(("agent", confirmation_reply))
+
+                return OutboundMessage(
+                    recipient_id=farmer_id,
+                    text=confirmation_reply,
+                    metadata={
+                        "state": context.state.value,
+                        "order_id": order.id,
+                        "produce": order.produce_type,
+                        "quantity": order.quantity,
+                        "unit": order.unit,
+                        "authoritative_rate": order.validated_rate,
+                        "total_amount": order.total_amount,
+                        "currency": order.currency,
+                        "status": order.status.value,
+                    },
+                )
+
+            # Case 0C: Confirmation attempted without a pending transaction awaiting confirmation
+            if not context.offer.produce_type:
+                reply = (
+                    "There is no pending transaction to confirm. "
+                    "Please let us know what agricultural produce you would like to sell."
+                )
+            else:
+                reply = (
+                    "Cannot confirm order yet because some required details are missing. "
+                    "Please provide the remaining information before we can generate your order."
+                )
+
+            context.history.append(("agent", reply))
+            return OutboundMessage(
+                recipient_id=farmer_id,
+                text=reply,
+                metadata={"state": context.state.value},
+            )
+
+        # 1. Check for cancellation intent
+        if context.state == OrderState.AWAITING_FARMER_CONFIRMATION and any(
+            w in message_text.lower().split() for w in ["cancel", "decline", "reject"]
+        ):
+            context.state = OrderState.CANCELLED
+            reply = "Your transaction offer has been cancelled. Please let us know if you would like to start a new offer."
+            context.history.append(("agent", reply))
+            return OutboundMessage(
+                recipient_id=farmer_id,
+                text=reply,
+                metadata={"state": context.state.value},
+            )
+
+        # 2. Check for greeting or introductory messages
         normalized_words = set(re.findall(r"[a-z]+", message_text.lower()))
         greeting_words = {"hello", "hi", "hey", "greetings"}
         is_greeting = bool(normalized_words & greeting_words) or "good morning" in message_text.lower() or "good afternoon" in message_text.lower()
