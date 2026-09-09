@@ -9,7 +9,7 @@ from orca.db.models import (
     CollectionTaskModel,
     ConversationModel,
 )
-from orca.db.repository import init_db, OrderRepository, RateRepository
+from orca.db.repository import init_db, OrderRepository, RateRepository, PaymentRepository
 
 __all__ = [
     "Base",
@@ -25,4 +25,5 @@ __all__ = [
     "init_db",
     "OrderRepository",
     "RateRepository",
+    "PaymentRepository",
 ]

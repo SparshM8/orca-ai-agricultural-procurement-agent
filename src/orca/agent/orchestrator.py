@@ -18,6 +18,7 @@ from orca.domain.state_machine import OrderState, validate_transition
 from orca.services.pricing import pricing_service
 from orca.services.billing import billing_service
 from orca.services.order import order_service
+from orca.services.payment import payment_service
 from orca.core.regional import get_regional_profile
 
 
@@ -215,10 +216,15 @@ def is_confirmation_intent(text: str) -> bool:
 
 
 class AgentOrchestrator:
-    """Conversational agent orchestrator managing extraction, dialogue state, and rate lookup."""
+    """Conversational agent orchestrator managing extraction, dialogue state, rate lookup, and payment."""
 
-    def __init__(self, extractor: Optional[BaseOfferExtractor] = None):
+    def __init__(
+        self,
+        extractor: Optional[BaseOfferExtractor] = None,
+        auto_process_payment: bool = True,
+    ):
         self.extractor = extractor or RuleBasedPatternExtractor()
+        self.auto_process_payment = auto_process_payment
         # In-memory context storage by conversation_id
         self._conversations: Dict[str, DialogueContext] = {}
 
@@ -245,18 +251,56 @@ class AgentOrchestrator:
         context = self.get_or_create_context(conversation_id, farmer_id, region_code)
         context.history.append(("farmer", message_text))
 
+        # Check for payment retry intent when in PAYMENT_PENDING
+        if context.state == OrderState.PAYMENT_PENDING and any(
+            w in message_text.lower().split() for w in ["retry", "pay", "repay"]
+        ):
+            payment, is_paid, pay_msg = await payment_service.initiate_order_payment(
+                context.current_order_id
+            )
+            if is_paid:
+                context.state = OrderState.PAYMENT_CONFIRMED
+                reply = (
+                    f"Payment Retry Successful!\n"
+                    f"- Order ID: {context.current_order_id}\n"
+                    f"- Amount: {payment.currency} {payment.amount:.2f}\n"
+                    f"- Payment Status: SUCCESS (Ref: {payment.provider_reference})\n"
+                    f"- Order Status: PAYMENT_CONFIRMED\n\n"
+                    f"Thank you! Your payment has been confirmed."
+                )
+            else:
+                reply = (
+                    f"Payment Retry Failed: {pay_msg}\n"
+                    f"- Order ID: {context.current_order_id}\n"
+                    f"- Order Status: PAYMENT_PENDING\n\n"
+                    f"Please reply 'Retry payment' to attempt processing again."
+                )
+            context.history.append(("agent", reply))
+            return OutboundMessage(
+                recipient_id=farmer_id,
+                text=reply,
+                metadata={
+                    "state": context.state.value,
+                    "order_id": context.current_order_id,
+                    "payment_id": payment.id,
+                    "payment_status": payment.status,
+                },
+            )
+
         # 0. Check for explicit farmer confirmation
         if is_confirmation_intent(message_text):
-            # Case 0A: Duplicate confirmation on an already confirmed order
-            if context.state == OrderState.ORDER_CONFIRMED and context.current_order_id:
+            # Case 0A: Duplicate confirmation on an already confirmed order / payment
+            if (context.state in [OrderState.ORDER_CONFIRMED, OrderState.PAYMENT_CONFIRMED]) and context.current_order_id:
                 existing_order = order_service.get_order(context.current_order_id)
+                payment = payment_service.get_payment_for_order(context.current_order_id)
                 reply = (
                     f"This transaction has already been confirmed.\n"
                     f"- Order ID: {context.current_order_id}\n"
                     f"- Produce: {context.offer.quantity:g} {context.offer.unit} of {context.offer.produce_type}\n"
                     f"- Authoritative Rate: {existing_order.currency if existing_order else 'USD'} {existing_order.validated_rate if existing_order else 0.0:.2f} per {context.offer.unit}\n"
                     f"- Total Amount: {existing_order.currency if existing_order else 'USD'} {existing_order.total_amount if existing_order else 0.0:.2f}\n"
-                    f"- Status: ORDER_CONFIRMED\n\n"
+                    f"- Payment Status: {payment.status if payment else 'N/A'}\n"
+                    f"- Status: {context.state.value}\n\n"
                     f"Our logistics runner will be assigned for pickup as scheduled."
                 )
                 context.history.append(("agent", reply))
@@ -267,6 +311,7 @@ class AgentOrchestrator:
                         "state": context.state.value,
                         "order_id": context.current_order_id,
                         "is_duplicate": True,
+                        "payment_status": payment.status if payment else None,
                     },
                 )
 
@@ -296,20 +341,66 @@ class AgentOrchestrator:
                     conversation_id=conversation_id,
                 )
 
-                # Transition state to ORDER_CONFIRMED
-                context.state = OrderState.ORDER_CONFIRMED
                 context.current_order_id = order.id
 
-                confirmation_reply = (
-                    f"Order Confirmed! Your procurement order has been successfully created.\n"
-                    f"- Order ID: {order.id}\n"
-                    f"- Produce: {order.quantity:g} {order.unit} of {order.produce_type}\n"
-                    f"- Authoritative Rate: {order.currency} {order.validated_rate:.2f} per {order.unit}\n"
-                    f"- Total Amount: {order.currency} {order.total_amount:.2f}\n"
-                    f"- Pickup Location: {order.pickup_location}\n"
-                    f"- Status: ORDER_CONFIRMED\n\n"
-                    f"Thank you for confirming. Your order is now registered with our procurement desk."
-                )
+                # If auto_process_payment is disabled, stop at ORDER_CONFIRMED
+                if not self.auto_process_payment:
+                    context.state = OrderState.ORDER_CONFIRMED
+                    confirmation_reply = (
+                        f"Order Confirmed! Your procurement order has been successfully created.\n"
+                        f"- Order ID: {order.id}\n"
+                        f"- Produce: {order.quantity:g} {order.unit} of {order.produce_type}\n"
+                        f"- Authoritative Rate: {order.currency} {order.validated_rate:.2f} per {order.unit}\n"
+                        f"- Total Amount: {order.currency} {order.total_amount:.2f}\n"
+                        f"- Pickup Location: {order.pickup_location}\n"
+                        f"- Status: ORDER_CONFIRMED\n\n"
+                        f"Thank you for confirming. Your order is now registered with our procurement desk."
+                    )
+                    context.history.append(("agent", confirmation_reply))
+                    return OutboundMessage(
+                        recipient_id=farmer_id,
+                        text=confirmation_reply,
+                        metadata={
+                            "state": context.state.value,
+                            "order_id": order.id,
+                            "produce": order.produce_type,
+                            "quantity": order.quantity,
+                            "unit": order.unit,
+                            "authoritative_rate": order.validated_rate,
+                            "total_amount": order.total_amount,
+                            "currency": order.currency,
+                            "status": order.status.value,
+                        },
+                    )
+
+                # Execute Payment Flow: ORDER_CONFIRMED -> PAYMENT_PENDING -> PAYMENT_CONFIRMED
+                payment, is_paid, pay_msg = await payment_service.initiate_order_payment(order.id)
+
+                if is_paid:
+                    context.state = OrderState.PAYMENT_CONFIRMED
+                    confirmation_reply = (
+                        f"Order and Payment Confirmed!\n"
+                        f"- Order ID: {order.id}\n"
+                        f"- Produce: {order.quantity:g} {order.unit} of {order.produce_type}\n"
+                        f"- Authoritative Rate: {order.currency} {order.validated_rate:.2f} per {order.unit}\n"
+                        f"- Total Amount: {order.currency} {order.total_amount:.2f}\n"
+                        f"- Payment Status: SUCCESS (Ref: {payment.provider_reference})\n"
+                        f"- Order Status: PAYMENT_CONFIRMED\n"
+                        f"- Pickup Location: {order.pickup_location}\n\n"
+                        f"Thank you! Payment has been recorded and your order is confirmed for pickup."
+                    )
+                else:
+                    context.state = OrderState.PAYMENT_PENDING
+                    confirmation_reply = (
+                        f"Order Confirmed, but Payment Failed.\n"
+                        f"- Order ID: {order.id}\n"
+                        f"- Produce: {order.quantity:g} {order.unit} of {order.produce_type}\n"
+                        f"- Total Amount: {order.currency} {order.total_amount:.2f}\n"
+                        f"- Order Status: PAYMENT_PENDING\n"
+                        f"- Payment Status: FAILED\n\n"
+                        f"{pay_msg}"
+                    )
+
                 context.history.append(("agent", confirmation_reply))
 
                 return OutboundMessage(
@@ -325,6 +416,8 @@ class AgentOrchestrator:
                         "total_amount": order.total_amount,
                         "currency": order.currency,
                         "status": order.status.value,
+                        "payment_id": payment.id,
+                        "payment_status": payment.status,
                     },
                 )
 

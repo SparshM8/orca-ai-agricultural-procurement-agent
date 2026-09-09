@@ -135,3 +135,45 @@ class RateRepository:
             )
         )
         return sorted(list(set(result.scalars().all())))
+
+
+class PaymentRepository:
+    """Persistence repository for Payments."""
+
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def save(self, payment_model: PaymentModel) -> PaymentModel:
+        """Persist or update a payment."""
+        self.session.add(payment_model)
+        await self.session.commit()
+        await self.session.refresh(payment_model)
+        return payment_model
+
+    async def get_by_id(self, payment_id: str) -> Optional[PaymentModel]:
+        """Fetch payment by ID."""
+        result = await self.session.execute(
+            select(PaymentModel).where(PaymentModel.id == payment_id)
+        )
+        return result.scalars().first()
+
+    async def get_by_order_id(self, order_id: str) -> Optional[PaymentModel]:
+        """Fetch payment by order ID (for idempotency)."""
+        result = await self.session.execute(
+            select(PaymentModel).where(PaymentModel.order_id == order_id)
+        )
+        return result.scalars().first()
+
+    async def update_status(
+        self, payment_id: str, new_status: str, provider_reference: Optional[str] = None
+    ) -> Optional[PaymentModel]:
+        """Update payment status and provider reference."""
+        payment = await self.get_by_id(payment_id)
+        if payment:
+            payment.status = new_status
+            if provider_reference:
+                payment.provider_reference = provider_reference
+            await self.session.commit()
+            await self.session.refresh(payment)
+        return payment
+

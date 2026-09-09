@@ -134,23 +134,22 @@ class AgentToolRegistry:
         return bill.model_dump()
 
     @staticmethod
-    def create_payment_request(order_id: str) -> Dict[str, Any]:
+    async def create_payment_request(order_id: str) -> Dict[str, Any]:
         """Tool 7: create_payment_request(order_id) - initiate payment workflow."""
-        order = order_service.get_order(order_id)
-        if not order:
-            return {"error": f"Order not found: {order_id}"}
-        payment = payment_service.create_payment_request(
-            order_id=order.id,
-            amount=order.total_amount,
-            currency=order.currency,
-        )
-        return {
-            "payment_id": payment.id,
-            "order_id": payment.order_id,
-            "amount": payment.amount,
-            "currency": payment.currency,
-            "status": payment.status,
-        }
+        try:
+            payment, is_success, msg = await payment_service.initiate_order_payment(order_id)
+            return {
+                "success": is_success,
+                "payment_id": payment.id,
+                "order_id": payment.order_id,
+                "amount": payment.amount,
+                "currency": payment.currency,
+                "status": payment.status,
+                "provider_reference": payment.provider_reference,
+                "message": msg,
+            }
+        except ValueError as err:
+            return {"success": False, "error": str(err)}
 
     @staticmethod
     def get_payment_status(order_id: str) -> Dict[str, Any]:
