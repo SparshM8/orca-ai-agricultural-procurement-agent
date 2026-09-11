@@ -44,7 +44,7 @@ class RunnerReschedulePayload(BaseModel):
 
 TEMPLATE_PATH = Path(__file__).resolve().parent.parent / "ui" / "templates" / "index.html"
 STATIC_LOGO_PATH = Path(__file__).resolve().parent.parent / "ui" / "static" / "logo.png"
-ROOT_LOGO_PATH = Path("D:/ORCA/orcalogo.png")
+ROOT_LOGO_PATH = Path(__file__).resolve().parents[3] / "orcalogo.png"
 
 
 def create_app() -> FastAPI:
@@ -485,9 +485,16 @@ def create_app() -> FastAPI:
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
 
+    def _verify_demo_admin(request: Request, key: Optional[str] = None):
+        if settings.DEMO_ADMIN_KEY:
+            token = request.headers.get("X-Demo-Admin-Key") or key
+            if token != settings.DEMO_ADMIN_KEY:
+                raise HTTPException(status_code=403, detail="Unauthorized: invalid or missing demo admin key.")
+
     @app.post("/api/admin/demo/seed", tags=["Admin"])
-    async def seed_demo():
+    async def seed_demo(request: Request, key: Optional[str] = Query(default=None)):
         """Idempotently seed demonstration data across all services (Phase 8A)."""
+        _verify_demo_admin(request, key)
         from orca.services.demo_seed import seed_demo_data
         result = seed_demo_data()
         return result
@@ -499,12 +506,17 @@ def create_app() -> FastAPI:
         return {"samples": get_demo_samples()}
 
     @app.post("/api/admin/demo/reset", tags=["Admin"])
-    async def reset_demo_state(reseed: bool = Query(default=False, description="Optionally reseed demo data after reset")):
+    async def reset_demo_state(
+        request: Request,
+        reseed: bool = Query(default=False, description="Optionally reseed demo data after reset"),
+        key: Optional[str] = Query(default=None),
+    ):
         """Reset all demo orders, payments, collection tasks, and conversational contexts.
         
         Reseeds baseline rates and returns a deterministic success response.
         Safe to execute repeatedly without side effects.
         """
+        _verify_demo_admin(request, key)
         # 1. Clear in-memory services
         order_service.clear()
         payment_service.clear()

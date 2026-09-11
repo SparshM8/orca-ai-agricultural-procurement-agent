@@ -149,11 +149,15 @@ AI_MODEL_NAME=gemini-2.5-flash
 ### 3. Run Test Suite (340 / 340 Passing)
 Execute the complete test suite:
 ```bash
-pytest
+python -m pytest tests -q
 ```
-*Current test suite baseline: **340 passed in ~15s** (100% pass rate with zero regressions).*
+*Current test suite baseline: **352 passed in ~16s** (100% pass rate with zero regressions).*
 
-### 4. Start the Application
+---
+
+## 🚀 Running the Application
+
+### Local Development
 Launch the FastAPI server on port 8008:
 ```bash
 uvicorn orca.api.app:app --host 127.0.0.1 --port 8008 --reload
@@ -162,6 +166,36 @@ uvicorn orca.api.app:app --host 127.0.0.1 --port 8008 --reload
 - **Presentation UI**: `http://localhost:8008/` or `http://localhost:8008/ui`
 - **Interactive Swagger Docs**: `http://localhost:8008/docs`
 - **System Health Probe**: `http://localhost:8008/health`
+
+### Render Cloud Deployment (Public Stakeholder Demo)
+> **Public stakeholder demo deployment.**
+> **Sandbox environment — no real payments.**
+
+ORCA includes native [Render](https://render.com) Blueprint infrastructure (`render.yaml`) and `Procfile` for one-click stakeholder demo hosting.
+
+**Cloud Start Command:**
+```bash
+uvicorn orca.api.app:app --host 0.0.0.0 --port $PORT
+```
+
+**Cloud Environment Variables:**
+| Variable | Value / Default | Purpose |
+| :--- | :--- | :--- |
+| `PORT` | *(Provided by Render)* | Dynamically assigned HTTP port |
+| `HOST` | `0.0.0.0` | Public interface binding |
+| `PYTHON_VERSION` | `3.12.0` | Python runtime version |
+| `AI_PROVIDER` | `rule_based` | Deterministic intent classification |
+| `AI_FALLBACK_ON_FAILURE` | `true` | Automatic rule-based fallback |
+| `ENVIRONMENT` | `production` | Deployment environment label |
+| `DEBUG` | `false` | Debug mode disabled |
+| `DEFAULT_REGION` | `GLOBAL_DEFAULT` | Default regional procurement configuration |
+| `GEMINI_API_KEY` | *(Optional)* | Optional Gemini 2.5 Flash API key |
+| `DEMO_ADMIN_KEY` | *(Optional)* | Optional token protecting admin reset |
+
+**Public Deployment Notes & Limitations:**
+- **Ephemeral Storage**: Render free-tier instances use ephemeral container storage. On cold start or redeploy, ORCA's lifespan service automatically initializes the database schema and seeds the guided demo scenarios (`Hero Procurement`, `FAQ & Recommendations`, `Human Support`).
+- **Deterministic High Availability**: In standard demo mode, ORCA runs with `AI_PROVIDER=rule_based`, ensuring 100% availability without external API quotas, network timeouts, or rate limits.
+- **Sandbox Scope**: Financial transactions and logistics dispatches are executed through sandboxed mock adapters. Do NOT treat this public stakeholder demo deployment as production banking or logistics infrastructure.
 
 ---
 

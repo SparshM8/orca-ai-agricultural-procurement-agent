@@ -15,6 +15,13 @@ class Settings(BaseSettings):
     DEFAULT_REGION: str = "GLOBAL_DEFAULT"
     DEFAULT_LANGUAGE: str = "en"
 
+    # Server / Network Configuration (environment-driven for cloud, defaults to 8008 for local)
+    HOST: str = "127.0.0.1"
+    PORT: int = 8008
+
+    # Demo Admin Protection (optional token for public demo environments)
+    DEMO_ADMIN_KEY: Optional[str] = None
+
     # AI / LLM Configuration
     AI_PROVIDER: str = "rule_based"  # "rule_based", "openai_compatible", "ollama", "gemini"
     AI_BASE_URL: Optional[str] = None  # e.g., "http://localhost:11434/v1"

@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: orca-ai-procurement
+    runtime: python
+    buildCommand: pip install -r requirements.txt && pip install -e .
+    startCommand: uvicorn orca.api.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    plan: free
+    region: oregon
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: AI_PROVIDER
+        value: rule_based
+      - key: AI_FALLBACK_ON_FAILURE
+        value: "true"
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: DEFAULT_REGION
+        value: GLOBAL_DEFAULT

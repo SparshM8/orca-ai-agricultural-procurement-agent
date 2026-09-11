@@ -1454,7 +1454,7 @@
       <div class="header-right">
         <div class="demo-badge" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" title="Interactive presentation environment with simulated payment gateway">
           <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
-          <span>🟢 DEMO MODE - Sandbox environment — no real payments</span>
+          <span>🟢 DEMO MODE — Sandbox environment — no real payments</span>
         </div>
         <button class="btn btn-danger" onclick="triggerDemoReset()" title="Reset all demo orders, tasks, and state" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;">
           🧹 Reset Demo Data
@@ -1991,7 +1991,12 @@ Please tell me what produce you have available, quantity, and your pickup locati
         return;
       }
       try {
-        const res = await fetch(`${API_BASE}/api/admin/demo/reset`, { method: 'POST' });
+        const headers = {};
+        const adminKey = new URLSearchParams(window.location.search).get('demo_key') || localStorage.getItem('orca_demo_admin_key');
+        if (adminKey) {
+          headers['X-Demo-Admin-Key'] = adminKey;
+        }
+        const res = await fetch(`${API_BASE}/api/admin/demo/reset`, { method: 'POST', headers });
         if (!res.ok) throw new Error('Reset failed with HTTP ' + res.status);
         const data = await res.json();
         showToast('🧹 ' + data.message, 'success');
