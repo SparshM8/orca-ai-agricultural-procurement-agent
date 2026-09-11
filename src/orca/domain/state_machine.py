@@ -79,6 +79,7 @@ VALID_TRANSITIONS: Dict[OrderState, Set[OrderState]] = {
     },
     OrderState.COLLECTION_ASSIGNED: {
         OrderState.PICKED_UP,
+        OrderState.COLLECTION_PENDING,  # Runner rejection / unassignment recovery
         OrderState.EXCEPTION,
         OrderState.CANCELLED,
     },

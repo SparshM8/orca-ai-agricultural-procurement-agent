@@ -61,7 +61,9 @@ class Order(BaseModel):
     total_amount: float = Field(description="Deterministic total (quantity * validated_rate + tax)")
     pickup_location: str = Field(description="Specified pickup location")
     pickup_datetime: Optional[datetime] = Field(default=None, description="Scheduled collection time")
+    pickup_time_str: Optional[str] = Field(default=None, description="Human-readable scheduled pickup window")
     status: OrderState = Field(default=OrderState.OFFER_RECEIVED)
+    metadata: dict = Field(default_factory=dict, description="Arbitrary metadata e.g. demo flag")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -75,18 +77,30 @@ class Payment(BaseModel):
     currency: str = Field(default="USD")
     status: str = Field(default="PENDING", description="PENDING, INITIATED, SUCCESS, FAILED")
     provider_reference: Optional[str] = Field(default=None, description="External transaction ID from payment gateway")
+    metadata: dict = Field(default_factory=dict, description="Arbitrary metadata e.g. demo flag")
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class CollectionTask(BaseModel):
-    """Logistics pickup/collection task for runner."""
+    """Logistics pickup/collection task for runner (SRS Section 13)."""
 
     id: str = Field(description="Unique collection task ID")
     order_id: str = Field(description="Associated order ID")
     runner_id: Optional[str] = Field(default=None, description="Assigned runner ID")
+    produce_type: str = Field(default="", description="Produce to collect")
+    quantity: float = Field(default=0.0, description="Quantity to collect")
+    unit: str = Field(default="kg", description="Unit of measurement")
     pickup_location: str = Field(description="Physical location for collection")
-    scheduled_datetime: Optional[datetime] = Field(default=None)
+    scheduled_datetime: Optional[datetime] = Field(default=None, description="Scheduled collection datetime")
+    scheduled_time_str: Optional[str] = Field(default=None, description="Human-readable scheduled window")
+    farmer_id: str = Field(default="", description="Farmer reference")
+    farmer_contact: Optional[str] = Field(default=None, description="Farmer phone/contact")
     status: str = Field(default="PENDING", description="PENDING, ASSIGNED, PICKED_UP, COMPLETED, FAILED")
+    failure_reason: Optional[str] = Field(default=None, description="Reason if pickup failed")
+    metadata: dict = Field(default_factory=dict, description="Arbitrary metadata e.g. demo flag")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    assigned_at: Optional[datetime] = None
+    picked_up_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
 
 

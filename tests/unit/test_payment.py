@@ -225,26 +225,117 @@ async def test_payment_database_persistence(test_db_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_end_to_end_conversation_order_confirmed_to_payment_confirmed():
-    """End-to-end conversational flow from offer to PAYMENT_CONFIRMED."""
-    orchestrator = AgentOrchestrator(auto_process_payment=True)
+    """End-to-end conversational flow from offer to PAYMENT_CONFIRMED with explicit payment step.
+
+    Desired flow:
+    ORDER_CONFIRMED -> PAYMENT_PENDING -> farmer receives payment request
+    -> farmer replies 'Pay' -> DemoPaymentAdapter processes payment -> PAYMENT_CONFIRMED
+    """
+    orchestrator = AgentOrchestrator(auto_create_collection_task=False)
     conv_id = "test_conv_e2e_payment"
 
     # Step 1: Offer
-    await orchestrator.process_message(
+    res_offer = await orchestrator.process_message(
         conv_id,
         "I have 50 kg of potatoes in Springfield available this Friday at 10 AM.",
         farmer_id="farmer_e2e",
     )
     ctx = orchestrator._conversations[conv_id]
     assert ctx.state == OrderState.AWAITING_FARMER_CONFIRMATION
+    assert "Confirm" in res_offer.text
 
-    # Step 2: Farmer Confirms -> Order created -> Payment processed -> PAYMENT_CONFIRMED
-    res = await orchestrator.process_message(conv_id, "Confirm", farmer_id="farmer_e2e")
+    # Step 2: Farmer Confirms -> Order created -> Payment request created -> PAYMENT_PENDING
+    res_confirm = await orchestrator.process_message(conv_id, "Confirm", farmer_id="farmer_e2e")
+
+    assert ctx.state == OrderState.PAYMENT_PENDING
+    assert "Order Confirmed!" in res_confirm.text
+    assert "Payment Request:" in res_confirm.text
+    assert "PAYMENT_PENDING" in res_confirm.text
+    assert "Please reply 'Pay' or 'Make payment'" in res_confirm.text
+    assert res_confirm.metadata["order_id"] is not None
+    assert res_confirm.metadata["status"] == "PAYMENT_PENDING"
+    assert res_confirm.metadata["payment_status"] == "PENDING"
+    assert res_confirm.metadata["total_amount"] == 20.00
+    order_id = res_confirm.metadata["order_id"]
+
+    # Step 3: Farmer replies "Pay" -> DemoPaymentAdapter processes -> PAYMENT_CONFIRMED
+    res_pay = await orchestrator.process_message(conv_id, "Pay", farmer_id="farmer_e2e")
 
     assert ctx.state == OrderState.PAYMENT_CONFIRMED
-    assert "Order and Payment Confirmed!" in res.text
-    assert res.metadata["order_id"] is not None
-    assert res.metadata["status"] == "PAYMENT_CONFIRMED"
-    assert res.metadata["payment_status"] == "SUCCESS"
-    assert "Total Amount: USD 20.00" in res.text
-    assert "Payment Status: SUCCESS" in res.text
+    assert "Payment Confirmed!" in res_pay.text
+    assert res_pay.metadata["order_id"] == order_id
+    assert res_pay.metadata["status"] == "PAYMENT_CONFIRMED"
+    assert res_pay.metadata["payment_status"] == "SUCCESS"
+    assert "Total Amount: USD 20.00" in res_pay.text
+    assert "DEMO_TX_" in res_pay.text
+
+    # Step 4: Duplicate "Pay" or "Confirm" is safely idempotent
+    res_dup = await orchestrator.process_message(conv_id, "Pay", farmer_id="farmer_e2e")
+    assert ctx.state == OrderState.PAYMENT_CONFIRMED
+    assert "already been confirmed" in res_dup.text.lower()
+    assert res_dup.metadata["is_duplicate"] is True
+
+
+@pytest.mark.asyncio
+async def test_conversational_workflow_payment_failure_and_retry():
+    """Test conversational payment failure and recovery via 'Retry payment'."""
+    failing_adapter = DemoPaymentAdapter(default_should_succeed=False)
+    # Temporarily attach adapter to payment_service
+    original_adapter = payment_service.adapter
+    payment_service.adapter = failing_adapter
+
+    try:
+        orchestrator = AgentOrchestrator(auto_create_collection_task=False)
+        conv_id = "test_conv_fail_retry"
+
+        # Step 1: Offer
+        await orchestrator.process_message(
+            conv_id,
+            "I have 30 kg of tomatoes in Springfield available tomorrow.",
+            farmer_id="farmer_retry",
+        )
+
+        # Step 2: Confirm -> PAYMENT_PENDING
+        res_confirm = await orchestrator.process_message(conv_id, "Confirm", farmer_id="farmer_retry")
+        order_id = res_confirm.metadata["order_id"]
+
+        # Step 3: Farmer sends "Make payment" -> adapter fails -> stays in PAYMENT_PENDING
+        res_fail = await orchestrator.process_message(conv_id, "Make payment", farmer_id="farmer_retry")
+        ctx = orchestrator._conversations[conv_id]
+        assert ctx.state == OrderState.PAYMENT_PENDING
+        assert "Payment Failed" in res_fail.text
+        assert "FAILED" in res_fail.metadata["payment_status"]
+        assert "Retry payment" in res_fail.text
+
+        # Step 4: Configure adapter to succeed on retry
+        failing_adapter.set_order_outcome(order_id, should_succeed=True)
+
+        # Step 5: Farmer sends "Retry payment" -> succeeds -> PAYMENT_CONFIRMED
+        res_retry = await orchestrator.process_message(conv_id, "Retry payment", farmer_id="farmer_retry")
+        assert ctx.state == OrderState.PAYMENT_CONFIRMED
+        assert "Payment Confirmed!" in res_retry.text
+        assert res_retry.metadata["status"] == "PAYMENT_CONFIRMED"
+        assert res_retry.metadata["payment_status"] == "SUCCESS"
+    finally:
+        payment_service.adapter = original_adapter
+
+
+@pytest.mark.asyncio
+async def test_conversational_workflow_cannot_alter_payment_amount():
+    """Farmer attempting to send custom payment amount in 'Pay' message is ignored; authoritative amount is used."""
+    orchestrator = AgentOrchestrator(auto_create_collection_task=False)
+    conv_id = "test_conv_tamper_amount"
+
+    # Offer: 50 kg of potatoes at $0.40/kg = $20.00 USD
+    await orchestrator.process_message(
+        conv_id,
+        "I have 50 kg of potatoes in Springfield available today.",
+        farmer_id="farmer_tamper",
+    )
+    await orchestrator.process_message(conv_id, "Confirm", farmer_id="farmer_tamper")
+
+    # Farmer tries saying "Pay $100"
+    res_pay = await orchestrator.process_message(conv_id, "Pay $100", farmer_id="farmer_tamper")
+    assert res_pay.metadata["total_amount"] == 20.00
+    assert "USD 20.00" in res_pay.text
+    assert "100" not in res_pay.text.split("Total Amount: USD")[1].split()[0]

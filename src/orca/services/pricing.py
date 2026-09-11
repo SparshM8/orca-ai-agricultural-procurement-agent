@@ -43,6 +43,10 @@ class PricingService:
             ),
         }
 
+    def reset_baseline_rates(self) -> None:
+        """Reset in-memory rates back to baseline."""
+        self.__init__()
+
     def get_supported_produce(self, region_code: str = "GLOBAL_DEFAULT") -> List[str]:
         """List supported produce items for a given region."""
         supported = [

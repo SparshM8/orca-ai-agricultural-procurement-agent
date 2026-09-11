@@ -23,6 +23,18 @@ from orca.domain.schemas import (
     BillSummary,
     TransactionSummary,
 )
+from orca.domain.procurement import (
+    ProcurementConstraints,
+    ProcurementEvaluation,
+    FutureHarvestDeclaration,
+    get_procurement_policy,
+    register_procurement_policy,
+)
+from orca.domain.knowledge import (
+    KnowledgeCategory,
+    KnowledgeArticle,
+    KnowledgeResult,
+)
 
 __all__ = [
     "OrderState",
@@ -42,4 +54,12 @@ __all__ = [
     "ExtractedOffer",
     "BillSummary",
     "TransactionSummary",
+    "ProcurementConstraints",
+    "ProcurementEvaluation",
+    "FutureHarvestDeclaration",
+    "get_procurement_policy",
+    "register_procurement_policy",
+    "KnowledgeCategory",
+    "KnowledgeArticle",
+    "KnowledgeResult",
 ]

@@ -77,6 +77,52 @@ COMPLETED ◄── PICKED_UP ◄── COLLECTION_ASSIGNED ◄── COLLECTION
 
 ---
 
+## 🖥️ Presentation & Operational Portals
+
+ORCA provides an enterprise-grade single-page application served at `http://localhost:8008/` with three synchronized portals:
+
+1. **🌾 Farmer Chat** (Primary Experience):
+   - Conversational intake for produce offers, quantities, pickup availability, and inquiries.
+   - Natural language comprehension with animated typing indicators and responsive SaaS layout.
+   - Grounded pricing negotiation rationale and isolated candidate offer amendments.
+   - One-click confirmation and instant sandbox payout execution.
+   - Live order fulfillment tracking (Order ID, Payment Status, Logistics Task, and Human Escalation badge).
+   - Instant quick-action pills for 1-click execution of all 14 capabilities (50kg Potato offer, negotiate, amend, confirm, pay, pickup FAQ, catalog, personalized recommendation, human support).
+2. **🚚 Runner Console**:
+   - Operational task board with two distinct views: *Available Pickups* (unassigned pool) and *My Active Pickups* (fleet-assigned).
+   - Dedicated fleet selectors (`Runner-01`, `Runner-02`, `Runner-03`).
+   - Task lifecycle execution: Accept, Reject, Confirm Pickup, Report Failure, and Reschedule (with styled modal dialogs).
+3. **📊 Admin Dashboard**:
+   - Real-time executive KPIs: Total Procurement Orders, Authoritative GMV, Active Logistics Tasks, Completed Orders, and Open Human Escalations.
+   - Dedicated sub-navigation tabs:
+     - 📦 **Procurement Orders**: Full order registry with search, status filters, and deep-dive Inspection Drawer.
+     - 💳 **Payments**: Authoritative disbursement logs with provider references and timestamps.
+     - 🚚 **Logistics Tasks**: Fleet assignment, pickup windows, and runner status.
+     - ⚠️ **Human Escalations**: Operational exception records with 1-click resolution actions.
+   - Comprehensive **Order Audit Drawer**: 8-step chronological progression stepper, deterministic payout verification, collection task details, conversational transcript, and observational **Agent Trace & Decision Audit**.
+   - One-click **🧹 Reset Demo Data** button to clear demo data and return to baseline rates in 1 second.
+
+---
+
+## 🧠 Autonomous Intelligence & Deterministic Guardrails
+
+1. **Farmer Conversational Procurement**: Natural language intake, multi-turn amendment, and pricing inquiries.
+2. **Deterministic Pricing Service**: Strict authoritative price lookups (`pricing_service`). Zero LLM pricing hallucinations.
+3. **Billing Service**: Exact arithmetic calculations, regional tax schemes, and transparent itemized bills.
+4. **Order State Machine**: 13-state deterministic lifecycle (`OrderState`) with atomic transitions and idempotency locks.
+5. **Payment Service**: Multi-turn payout initiation with sandbox adapter and deterministic provider reference verification.
+6. **Collection Logistics**: Automated pickup task dispatching, fleet assignment, rescheduling, and failure routing.
+7. **Admin Dashboard**: Real-time KPI aggregation, audit drawers, and operational oversight.
+8. **Runner Console**: Mobile-ready dispatcher board for physical pickups, reschedule requests, and failure reports.
+9. **AgentTrace Observability**: Structured diagnostic logs for every agent interaction with recursive credential redaction.
+10. **One-Click Demo Reset**: In-memory and persistence reset to clean baseline in < 1 second.
+11. **Business Knowledge Layer**: Grounded, read-only operational knowledge service (`BusinessKnowledgeService`) answering policies and FAQs without external vector DBs or RAG hallucinations.
+12. **Grounded Recommendations**: Catalog exploration grounded exclusively in ORCA's verified supported crops and active rates.
+13. **Factual Personalization**: Minimal observable profile tracking explicit farmer offers, completed orders, and stated crop preferences. Never predicts or infers wealth, farm size, or risk scores.
+14. **Human Handoff & Exception Routing**: Deterministic operational escalation (`HumanHandoffService`) for disputes, collection failures, or explicit farmer requests with zero LLM state mutation.
+
+---
+
 ## 🚀 Quickstart & Verification
 
 ### Prerequisites
@@ -88,14 +134,77 @@ COMPLETED ◄── PICKED_UP ◄── COLLECTION_ASSIGNED ◄── COLLECTION
 uv pip install -e ".[dev]"
 ```
 
-### 2. Run Test Suite
+### 2. Environment Configuration
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Configure your Gemini API key (optional — falls back to rule-based classification automatically if unset):
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+AI_PROVIDER=gemini
+AI_MODEL_NAME=gemini-2.5-flash
+```
+
+### 3. Run Test Suite (340 / 340 Passing)
+Execute the complete test suite:
 ```bash
 pytest
 ```
+*Current test suite baseline: **340 passed in ~15s** (100% pass rate with zero regressions).*
 
-### 3. Run FastAPI Application
+### 4. Start the Application
+Launch the FastAPI server on port 8008:
 ```bash
-uvicorn orca.api.app:app --reload --port 8000
+uvicorn orca.api.app:app --host 127.0.0.1 --port 8008 --reload
 ```
-- API Docs: `http://localhost:8000/docs`
-- Health Probe: `http://localhost:8000/health`
+
+- **Presentation UI**: `http://localhost:8008/` or `http://localhost:8008/ui`
+- **Interactive Swagger Docs**: `http://localhost:8008/docs`
+- **System Health Probe**: `http://localhost:8008/health`
+
+---
+
+## 🎬 10-Minute Live Demo Walkthrough
+
+Follow this scripted path for a comprehensive stakeholder presentation:
+
+1. **Step 0 — Clean Baseline**:
+   - Open `http://localhost:8008/`.
+   - Click **🧹 Reset Demo Data** in the top navigation header.
+   - Verify GMV is `$0.00`, order count is `0`, and open escalations is `0`.
+2. **Step 1 — Conversational Intake (Farmer Chat)**:
+   - Click quick-action pill `🥔 50kg Potatoes in Nairobi` (or type: *"I have 50 kg of potatoes in Nairobi available tomorrow at 10 AM"*).
+   - Observe the typing indicator. The agent returns authoritative pricing: `50 kg @ USD 0.40/kg = USD 20.00`.
+3. **Step 2 — Grounded Price Negotiation**:
+   - Click `💰 Negotiate: Can you pay $0.45?`.
+   - Observe the agent's grounded explanation: rates are benchmarked to wholesale market averages and include guaranteed immediate payout.
+4. **Step 3 — Candidate Amendment**:
+   - Click `✏️ Amend: Change to 80 kg`.
+   - Agent recalculates: `80 kg @ USD 0.40/kg = USD 32.00`.
+5. **Step 4 — Confirmation & Instant Payout**:
+   - Click `✅ Confirm`. Order moves to `ORDER_CONFIRMED` -> `PAYMENT_PENDING`.
+   - Click `💳 Pay`. Payment executes via sandbox -> `PAYMENT_CONFIRMED`.
+   - Collection task is automatically dispatched to the logistics pool (`COLLECTION_PENDING`).
+6. **Step 5 — Logistics Runner Execution (Runner Console)**:
+   - Switch to **🚚 Runner Console** tab (`Runner-01`).
+   - Click **✅ Accept Task** in *Available Pickups*. Task moves to *My Active Pickups* (`COLLECTION_ASSIGNED`).
+   - Click **✅ Confirm Pickup**. State machine completes transaction (`COMPLETED`).
+7. **Step 6 — Business Knowledge & Grounded Recommendations**:
+   - Return to **🌾 Farmer Chat**.
+   - Click `ℹ️ FAQ: Pickup`: Agent explains the collection and physical inspection process.
+   - Click `🌾 Produce Catalog`: Agent returns verified supported produce (potato, tomato, onion).
+   - Click `✨ Recommendations`: Agent observes completed sale of 80 kg potatoes and returns a grounded recommendation citing prior sale history.
+8. **Step 7 — Operational Exception & Human Escalation**:
+   - Click `🧑‍💼 Human Support` (or type: *"I want to talk to a human"*).
+   - Agent creates support case (e.g. `HC-XXXXXX`) and updates the sidebar *Support Escalation* status badge.
+   - Active offer and order states remain strictly preserved.
+9. **Step 8 — Operations & Admin Oversight (Admin Dashboard)**:
+   - Switch to **📊 Admin Dashboard**.
+   - Observe KPIs: Total Orders: `1`, GMV: `$32.00`, Completed: `1`, Escalations: `1`.
+   - Switch subtabs to inspect **💳 Payments**, **🚚 Logistics Tasks**, and **⚠️ Human Escalations**.
+   - Click **Resolve** on the escalation case to mark it `RESOLVED`.
+   - Inspect the order's **🛡️ Agent Trace & Decision Audit** to showcase intent confidence, classifier name, fallback status, and sanitized arguments.
+10. **Step 9 — Teardown**:
+   - Click **🧹 Reset Demo Data** to return to a clean baseline.
+

@@ -56,6 +56,7 @@ class OrderModel(Base):
     pickup_datetime: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    pickup_time_str: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
     status: Mapped[str] = mapped_column(String(64), default="ORDER_CONFIRMED")
     conversation_id: Mapped[Optional[str]] = mapped_column(
         String(128), unique=True, nullable=True, index=True
@@ -94,11 +95,27 @@ class CollectionTaskModel(Base):
     id: Mapped[str] = mapped_column(String(64), primary_key=True)
     order_id: Mapped[str] = mapped_column(String(64), index=True)
     runner_id: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
+    produce_type: Mapped[str] = mapped_column(String(64), default="")
+    quantity: Mapped[float] = mapped_column(Float, default=0.0)
+    unit: Mapped[str] = mapped_column(String(32), default="kg")
     pickup_location: Mapped[str] = mapped_column(String(256))
     scheduled_datetime: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    scheduled_time_str: Mapped[Optional[str]] = mapped_column(String(128), nullable=True)
+    farmer_id: Mapped[str] = mapped_column(String(64), default="")
+    farmer_contact: Mapped[Optional[str]] = mapped_column(String(64), nullable=True)
     status: Mapped[str] = mapped_column(String(32), default="PENDING")
+    failure_reason: Mapped[Optional[str]] = mapped_column(String(256), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
+    )
+    assigned_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    picked_up_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     completed_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )

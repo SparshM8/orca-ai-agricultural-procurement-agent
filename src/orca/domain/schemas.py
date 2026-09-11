@@ -9,19 +9,23 @@ from orca.domain.state_machine import OrderState
 class InboundMessage(BaseModel):
     """Normalized inbound message from any messaging adapter."""
 
+    message_id: Optional[str] = Field(default=None, description="Unique message/event ID for deduplication and tracing")
     sender_id: str = Field(description="Normalized sender identity, e.g., phone number")
-    channel: str = Field(default="whatsapp", description="whatsapp, web, console")
+    channel: str = Field(default="web_chat", description="Channel identifier (e.g. web_chat, demo, whatsapp)")
     text: str = Field(description="Farmer message content")
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     raw_payload: Optional[dict] = None
+    metadata: Optional[dict] = None
 
 
 class OutboundMessage(BaseModel):
     """Normalized outbound message to be sent via channel adapter."""
 
+    message_id: Optional[str] = Field(default=None, description="Unique outbound transmission ID")
     recipient_id: str = Field(description="Target recipient ID")
-    channel: str = Field(default="whatsapp")
+    channel: str = Field(default="web_chat")
     text: str = Field(description="Agent response content")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     metadata: Optional[dict] = None
 
 
@@ -36,6 +40,7 @@ class ExtractedOffer(BaseModel):
     availability_window: Optional[str] = Field(default=None, description="When produce is ready for pickup")
     pickup_datetime: Optional[str] = Field(default=None, description="Specific date/time for pickup")
     farmer_confirmed: Optional[bool] = Field(default=None, description="Explicit confirmation yes/no")
+    future_availability: Optional[str] = Field(default=None, description="Staged or future harvest availability notes")
 
 
 class BillSummary(BaseModel):

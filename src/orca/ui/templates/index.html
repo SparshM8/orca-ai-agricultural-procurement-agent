@@ -1,0 +1,2994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORCA AI SOLUTIONS - Agricultural Procurement Platform</title>
+  <link rel="icon" type="image/png" href="/static/logo.png">
+  
+  <!-- Google Fonts: Nunito Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,300..900;1,6..12,300..900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Brand Typography */
+      --font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+      /* Brand Dark & Midnight Palette (from ORCA AI Logo) */
+      --brand-navy-950: #060c18;
+      --brand-navy-900: #0a1426;
+      --brand-navy-800: #101d36;
+      --brand-navy-700: #182846;
+
+      /* Primary Blues & Glowing Cyan */
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-dark: #075985;
+      --primary-light: #e0f2fe;
+      --primary-gradient: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      --cyan-glow: #00e5ff;
+      --cyan-400: #38bdf8;
+      --cyan-500: #0ea5e9;
+
+      /* Agricultural & Fulfillment Palette */
+      --harvest-green: #059669;
+      --harvest-green-hover: #047857;
+      --harvest-green-light: #ecfdf5;
+      --harvest-amber: #d97706;
+      --harvest-amber-light: #fffbeb;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --purple: #8b5cf6;
+      --purple-light: #ede9fe;
+      --indigo: #6366f1;
+      --indigo-light: #e0e7ff;
+
+      /* Surfaces & Text */
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --border-subtle: #f1f5f9;
+      --text-main: #0f172a;
+      --text-secondary: #334155;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+
+      /* Shadows & Elevation */
+      --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+      --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-full: 9999px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Custom slim scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.03);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* ========================================================================
+       Header & Brand Navigation
+       ======================================================================== */
+    header {
+      background: linear-gradient(180deg, var(--brand-navy-950) 0%, var(--brand-navy-900) 100%);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 4px 20px rgba(6, 12, 24, 0.25);
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    /* Brand Header: Desktop Full Wordmark vs Compact Mobile Sphere Mark */
+    .brand {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    /* Primary Desktop Header Logo: Full ORCA AI SOLUTIONS Wordmark */
+    .brand-wordmark-desktop {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .wordmark-lockup {
+      display: flex;
+      align-items: baseline;
+      gap: 0.55rem;
+      line-height: 1.05;
+    }
+
+    .wordmark-orca {
+      font-size: 1.55rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: #ffffff;
+      text-transform: uppercase;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .wordmark-ai {
+      font-size: 1.22rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #38bdf8 0%, #00e5ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 12px rgba(14, 165, 233, 0.4));
+    }
+
+    .wordmark-sub {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #94a3b8;
+      margin-top: 0.25rem;
+      line-height: 1;
+    }
+
+    /* Compact / Mobile Header Logo: ORCA Sphere Mark */
+    .brand-sphere-mobile {
+      display: none;
+      align-items: center;
+      gap: 0.65rem;
+      cursor: pointer;
+    }
+
+    .sphere-mark-img {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      border: 1.5px solid rgba(56, 189, 248, 0.45);
+      box-shadow: 0 0 14px rgba(14, 165, 233, 0.4), 0 2px 4px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease;
+    }
+
+    .sphere-mark-img:hover {
+      transform: scale(1.05);
+    }
+
+    .mobile-wordmark-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      color: #ffffff;
+    }
+
+    .mobile-wordmark-title span {
+      background: linear-gradient(135deg, #38bdf8 0%, #00e5ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Agent Avatar Sphere Mark */
+    .chat-agent-sphere-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid var(--primary);
+      box-shadow: 0 0 10px rgba(2, 132, 199, 0.3);
+      flex-shrink: 0;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      background: rgba(16, 29, 54, 0.7);
+      padding: 0.3rem;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      gap: 0.25rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 0.55rem 1.15rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn.active {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.45);
+    }
+
+    /* Status Badge in Header */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.15);
+    }
+
+    .dot-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 8px;
+      height: 8px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #10b981;
+    }
+
+    .dot-ping {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: rgba(16, 185, 129, 0.4);
+      animation: pulseDot 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes pulseDot {
+      0% { transform: scale(0.8); opacity: 0.8; }
+      50% { transform: scale(1.6); opacity: 0; }
+      100% { transform: scale(0.8); opacity: 0; }
+    }
+
+    /* ========================================================================
+       Main Content Layout
+       ======================================================================== */
+    main {
+      max-width: 1440px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      flex: 1;
+    }
+
+    .view-pane {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    .view-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Toast Notifications */
+    #toast-container {
+      position: fixed;
+      bottom: 1.75rem;
+      right: 1.75rem;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      background: var(--brand-navy-900);
+      color: #ffffff;
+      padding: 0.85rem 1.35rem;
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      animation: slideIn 0.2s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* State Pills / Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.65rem;
+      border-radius: var(--radius-full);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      border: 1px solid transparent;
+      line-height: 1.2;
+    }
+
+    .badge-ORDER_CONFIRMED { background-color: var(--primary-light); color: var(--primary-hover); border-color: #bae6fd; }
+    .badge-PAYMENT_PENDING { background-color: var(--warning-light); color: #b45309; border-color: #fde68a; }
+    .badge-PAYMENT_CONFIRMED { background-color: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
+    .badge-COLLECTION_PENDING { background-color: var(--purple-light); color: var(--purple); border-color: #ddd6fe; }
+    .badge-COLLECTION_ASSIGNED { background-color: var(--indigo-light); color: var(--indigo); border-color: #c7d2fe; }
+    .badge-PICKED_UP { background-color: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+    .badge-COMPLETED { background-color: var(--success-light); color: #047857; border-color: #a7f3d0; }
+    .badge-EXCEPTION, .badge-FAILED { background-color: var(--danger-light); color: #b91c1c; border-color: #fecaca; }
+    .badge-PENDING { background-color: var(--warning-light); color: #b45309; border-color: #fde68a; }
+    .badge-ASSIGNED { background-color: var(--indigo-light); color: var(--indigo); border-color: #c7d2fe; }
+
+    /* Buttons */
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family);
+      font-size: 0.825rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary { 
+      background: var(--primary-gradient); 
+      color: white; 
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+    }
+    .btn-primary:hover { 
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      box-shadow: 0 4px 8px rgba(2, 132, 199, 0.35);
+    }
+    
+    .btn-success { 
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+      color: white; 
+      box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
+    }
+    .btn-success:hover { 
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      box-shadow: 0 4px 8px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-danger { 
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
+      color: white; 
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+    }
+    .btn-danger:hover { 
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    }
+
+    .btn-secondary { 
+      background: #f1f5f9; 
+      color: #334155; 
+      border-color: #cbd5e1;
+    }
+    .btn-secondary:hover { 
+      background: #e2e8f0; 
+      color: #0f172a;
+    }
+
+    .btn-outline { 
+      background: #ffffff; 
+      border: 1px solid var(--border-color); 
+      color: var(--text-secondary); 
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-outline:hover { 
+      background: #f8fafc; 
+      border-color: #cbd5e1;
+      color: var(--text-main);
+    }
+
+    /* ========================================================================
+       Tab 1: Farmer Chat Styles
+       ======================================================================== */
+    .chat-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.5rem;
+      height: 780px;
+    }
+
+    .chat-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sidebar-section h3 {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .farmer-profile-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .farmer-profile-card .field {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.825rem;
+    }
+
+    .field-label { 
+      color: var(--text-muted); 
+      font-weight: 600;
+    }
+    .field-value { 
+      font-weight: 700; 
+      color: var(--text-main); 
+    }
+
+    .live-status-box {
+      background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 100%);
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      box-shadow: inset 0 1px 2px rgba(16, 185, 129, 0.05);
+    }
+
+    .live-status-box .field {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.825rem;
+    }
+
+    .chat-window {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      height: 100%;
+      box-shadow: var(--shadow-md);
+    }
+
+    .chat-header {
+      padding: 1rem 1.35rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+    }
+
+    .chat-header-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .chat-header-info h2 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .chat-header-info p {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sample-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #cbd5e1;
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .sample-chip:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .sample-chip.active {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      border-color: var(--cyan-400);
+      box-shadow: 0 0 10px rgba(2, 132, 199, 0.4);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      background-color: #f8fafc;
+    }
+
+    .msg-row {
+      display: flex;
+      flex-direction: column;
+      max-width: 82%;
+    }
+
+    .msg-row.farmer {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .msg-row.agent {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .msg-bubble {
+      padding: 0.95rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.925rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.55;
+    }
+
+    .msg-row.farmer .msg-bubble {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+    }
+
+    .msg-row.agent .msg-bubble {
+      background-color: #ffffff;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      border-left: 3px solid var(--primary);
+      border-bottom-left-radius: 2px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+
+    .typing-bubble {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.75rem 1.15rem;
+    }
+
+    .typing-dot {
+      width: 7px;
+      height: 7px;
+      background-color: var(--primary);
+      border-radius: 50%;
+      display: inline-block;
+      animation: typingPulse 1.4s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes typingPulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.35; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .msg-meta {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      padding: 0 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .agent-mini-avatar {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    /* Quick Action Pills */
+    .quick-actions-bar {
+      padding: 0.65rem 1.35rem;
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .quick-pill {
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.4rem 0.85rem;
+      border-radius: var(--radius-full);
+      font-family: var(--font-family);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .quick-pill:hover {
+      background-color: var(--primary-light);
+      border-color: #bae6fd;
+      color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .quick-pill.action-confirm {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+    .quick-pill.action-confirm:hover {
+      background-color: #bfdbfe;
+    }
+
+    .quick-pill.action-pay {
+      background-color: #dcfce7;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+    .quick-pill.action-pay:hover {
+      background-color: #bbf7d0;
+    }
+
+    /* Chat Input Area */
+    .chat-input-box {
+      padding: 0.95rem 1.35rem;
+      background-color: #ffffff;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 0.85rem;
+      align-items: center;
+    }
+
+    .chat-input-box textarea {
+      flex: 1;
+      height: 46px;
+      padding: 0.7rem 0.95rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      resize: none;
+      font-family: var(--font-family);
+      font-size: 0.925rem;
+      outline: none;
+      transition: all 0.18s ease;
+      background: #f8fafc;
+      color: var(--text-main);
+    }
+
+    .chat-input-box textarea:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .send-btn {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      padding: 0 1.35rem;
+      height: 46px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 0.875rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.18s ease;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+    }
+
+    .send-btn:hover {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4);
+    }
+
+    .send-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* ========================================================================
+       Tab 2: Runner Console Styles
+       ======================================================================== */
+    .runner-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .runner-top-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .runner-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .runner-selector label {
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .runner-selector select {
+      padding: 0.55rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      font-weight: 700;
+      background: #ffffff;
+      outline: none;
+      color: var(--text-main);
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease;
+    }
+
+    .runner-selector select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .runner-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .runner-column-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      min-height: 580px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .column-header {
+      padding: 1.15rem 1.35rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border-top-left-radius: var(--radius-lg);
+      border-top-right-radius: var(--radius-lg);
+    }
+
+    .column-header h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .task-list {
+      padding: 1.35rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.15rem;
+      flex: 1;
+      background: #f8fafc;
+    }
+
+    .task-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.15rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .task-card:hover {
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+      transform: translateY(-2px);
+    }
+
+    .task-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-id {
+      font-weight: 800;
+      font-size: 0.925rem;
+      color: #1e293b;
+      font-family: monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .task-card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+      font-size: 0.825rem;
+    }
+
+    .task-card-grid strong {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .task-card-actions {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    /* ========================================================================
+       Tab 3: Operations / Admin Dashboard Styles
+       ======================================================================== */
+    .admin-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.25rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .kpi-card:nth-child(1)::before { background: var(--primary); }
+    .kpi-card:nth-child(2)::before { background: var(--harvest-green); }
+    .kpi-card:nth-child(3)::before { background: var(--purple); }
+    .kpi-card:nth-child(4)::before { background: var(--indigo); }
+    .kpi-card:nth-child(5)::before { background: var(--danger); }
+
+    .admin-subtabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 0.25rem;
+      overflow-x: auto;
+    }
+
+    .admin-subtab-btn {
+      background: none;
+      border: none;
+      padding: 0.65rem 1.15rem;
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.18s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      white-space: nowrap;
+    }
+
+    .admin-subtab-btn:hover {
+      color: var(--primary);
+      background: rgba(2, 132, 199, 0.04);
+    }
+
+    .admin-subtab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      background: rgba(2, 132, 199, 0.06);
+    }
+
+    .admin-subtab-pane {
+      display: none;
+    }
+
+    .admin-subtab-pane.active {
+      display: block;
+    }
+
+    .kpi-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+
+    .admin-table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .table-toolbar {
+      padding: 1.15rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      max-width: 380px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.55rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+      transition: border-color 0.15s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .filter-group select {
+      padding: 0.55rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-family: var(--font-family);
+      font-size: 0.875rem;
+      font-weight: 600;
+      background: white;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .filter-group select:focus {
+      border-color: var(--primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f8fafc;
+      padding: 0.85rem 1.15rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 0.95rem 1.15rem;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    tr:hover td {
+      background-color: #f8fafc;
+    }
+
+    .order-id-cell {
+      font-family: monospace;
+      font-weight: 800;
+      color: var(--primary-dark);
+      font-size: 0.875rem;
+    }
+
+    /* Modal Drawer for Order Audit */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(6, 12, 24, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 50;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 880px;
+      max-height: 85vh;
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .modal-header {
+      padding: 1.35rem 1.75rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, var(--brand-navy-950) 0%, var(--brand-navy-900) 100%);
+      color: white;
+    }
+
+    .modal-header h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: monospace;
+    }
+
+    .modal-header p {
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
+
+    .modal-body {
+      padding: 1.75rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      background: #f8fafc;
+    }
+
+    /* Progression Stepper */
+    .stepper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      padding: 1.25rem 0.5rem;
+    }
+
+    .stepper-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.45rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .stepper-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 800;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stepper-item.reached .stepper-circle {
+      background: var(--harvest-green);
+      color: white;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+    }
+
+    .stepper-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 80px;
+      line-height: 1.2;
+    }
+
+    .stepper-item.reached .stepper-label {
+      color: var(--text-main);
+    }
+
+    .stepper-line {
+      position: absolute;
+      top: 27px;
+      left: 40px;
+      right: 40px;
+      height: 2px;
+      background: #e2e8f0;
+      z-index: 1;
+    }
+
+    /* Audit Section Cards */
+    .audit-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .audit-card h4 {
+      font-size: 0.825rem;
+      font-weight: 800;
+      margin-bottom: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .transcript-box {
+      max-height: 240px;
+      overflow-y: auto;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .transcript-entry {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      line-height: 1.45;
+    }
+
+    .transcript-entry.farmer { 
+      background: #e0f2fe; 
+      color: #0369a1; 
+      border-left: 3px solid #0284c7;
+    }
+    .transcript-entry.agent { 
+      background: #ffffff; 
+      color: #1e293b; 
+      border: 1px solid #e2e8f0;
+      border-left: 3px solid #10b981;
+    }
+
+    /* Footer */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid var(--border-color);
+      padding: 1rem 1.5rem;
+      margin-top: auto;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .footer-brand {
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 1024px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .chat-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .chat-window {
+        height: 650px;
+      }
+      .runner-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .brand-wordmark-desktop {
+        display: none !important;
+      }
+      .brand-sphere-mobile {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav-tabs {
+        width: 100%;
+        overflow-x: auto;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      footer {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <!-- Desktop Primary Header Logo: Full ORCA AI SOLUTIONS Wordmark -->
+        <div class="brand-wordmark-desktop" title="ORCA AI SOLUTIONS">
+          <div class="wordmark-lockup">
+            <span class="wordmark-orca">ORCA</span>
+            <span class="wordmark-ai">AI SOLUTIONS</span>
+          </div>
+          <p class="wordmark-sub">Agricultural Procurement Platform</p>
+        </div>
+
+        <!-- Compact / Mobile Header Logo: ORCA Sphere Mark -->
+        <div class="brand-sphere-mobile" title="ORCA AI SOLUTIONS">
+          <img src="/static/logo.png" alt="ORCA Sphere Mark" class="sphere-mark-img">
+          <span class="mobile-wordmark-title">ORCA <span>AI</span></span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-target="view-farmer">
+          🌾 Farmer Chat
+        </button>
+        <button class="tab-btn" data-target="view-runner">
+          🚚 Runner Console
+        </button>
+        <button class="tab-btn" data-target="view-admin">
+          📊 Admin Dashboard
+        </button>
+      </nav>
+
+      <div class="header-right">
+        <div class="demo-badge" style="display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.85rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 800; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" title="Interactive presentation environment with simulated payment gateway">
+          <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981;"></span>
+          <span>🟢 DEMO MODE - Sandbox environment — no real payments</span>
+        </div>
+        <button class="btn btn-danger" onclick="triggerDemoReset()" title="Reset all demo orders, tasks, and state" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;">
+          🧹 Reset Demo Data
+        </button>
+        <div class="status-badge">
+          <div class="dot-wrapper">
+            <div class="dot-ping"></div>
+            <div class="dot"></div>
+          </div>
+          <span id="system-status-text">Core API Live</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Views Container -->
+  <main>
+
+    <!-- ====================================================================
+         VIEW 1: Farmer Chat
+         ==================================================================== -->
+    <div id="view-farmer" class="view-pane active">
+      <div class="chat-layout">
+        <!-- Sidebar -->
+        <aside class="chat-sidebar">
+          <div class="sidebar-section">
+            <h3>🌾 Farmer Session</h3>
+            <div class="farmer-profile-card">
+              <div class="field">
+                <span class="field-label">Farmer ID:</span>
+                <span class="field-value" id="farmer-display-id">farmer_001</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Region Profile:</span>
+                <span class="field-value">GLOBAL_DEFAULT</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Procurement Desk:</span>
+                <span class="field-value">Direct AI Channel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-section">
+            <h3>📦 Live Order & Fulfillment</h3>
+            <div class="live-status-box" id="farmer-status-box">
+              <div class="field">
+                <span class="field-label">Active State:</span>
+                <span id="farmer-badge-state" class="badge badge-ORDER_CONFIRMED">OFFER_RECEIVED</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Order ID:</span>
+                <span id="farmer-order-id" class="field-value" style="font-family: monospace;">None</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Payment Status:</span>
+                <span id="farmer-payment-status" class="field-value">-</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Logistics Task:</span>
+                <span id="farmer-collection-status" class="field-value">-</span>
+              </div>
+              <div class="field">
+                <span class="field-label">Support Escalation:</span>
+                <span id="farmer-handoff-status" class="field-value">None</span>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-outline" style="margin-top: auto;" onclick="resetFarmerChat()">
+            🔄 New Conversation
+          </button>
+        </aside>
+
+        <!-- Chat Stream Window -->
+        <div class="chat-window">
+          <div class="chat-header">
+            <div class="chat-header-info">
+              <img src="/static/logo.png" alt="ORCA Sphere" class="chat-agent-sphere-avatar">
+              <div>
+                <h2>Autonomous Procurement Desk</h2>
+                <p>Conversational offer extraction, authoritative rate validation & automated payout</p>
+              </div>
+            </div>
+            <button class="btn btn-outline" onclick="refreshFarmerContext()">🔄 Sync</button>
+          </div>
+
+          <!-- Guided Demo Experience Selector (Phase 8A) -->
+          <div class="demo-sample-nav" style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; padding: 0.65rem 1.25rem; background: #0f172a; border-bottom: 1px solid rgba(56, 189, 248, 0.2); flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+              <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">Sample Demos:</span>
+              <button id="btn-sample-hero" class="sample-chip" onclick="selectSampleScenario('hero')">
+                🌾 Hero Procurement
+              </button>
+              <button id="btn-sample-assistance" class="sample-chip" onclick="selectSampleScenario('assistance')">
+                ℹ️ FAQ & Recommendations
+              </button>
+              <button id="btn-sample-handoff" class="sample-chip" onclick="selectSampleScenario('handoff')">
+                🧑‍💼 Human Support
+              </button>
+            </div>
+            <button id="btn-live-session" class="btn btn-primary" onclick="startLiveConversation()" style="padding: 0.35rem 0.85rem; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.35rem;">
+              ✨ Start New Live Conversation
+            </button>
+          </div>
+
+          <!-- Dynamic Mode Banner -->
+          <div id="conversation-mode-banner" style="display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1.25rem; font-size: 0.8rem; font-weight: 700; background: #e0f2fe; color: #0369a1; border-bottom: 1px solid #bae6fd; transition: all 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span id="conversation-mode-icon">💬</span>
+              <span id="conversation-mode-text">Live AI Procurement Session (Sandbox) — Ready for real-time conversation</span>
+            </div>
+            <span id="conversation-mode-tag" class="badge badge-ORDER_CONFIRMED" style="font-size: 0.7rem;">Live Interactive</span>
+          </div>
+
+          <div class="chat-messages" id="chat-messages-container">
+            <!-- Initial Greeting -->
+            <div class="msg-row agent">
+              <div class="msg-bubble">Hello! Welcome to ORCA AI Solutions Agricultural Procurement.
+Please tell me what produce you have available, quantity, and your pickup location.</div>
+              <div class="msg-meta">
+                <img src="/static/logo.png" class="agent-mini-avatar" alt="ORCA Agent">
+                <strong>ORCA Agent</strong> • Just now
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="quick-actions-bar">
+            <button class="quick-pill" onclick="sendQuickMessage('I have 50 kg of potatoes in Nairobi available tomorrow at 10 AM.')">
+              🥔 50kg Potatoes in Nairobi
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('Can you pay $0.45?')">
+              💰 Negotiate: Can you pay $0.45?
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('Actually, change that to 80 kg')">
+              ✏️ Amend: Change to 80 kg
+            </button>
+            <button class="quick-pill action-confirm" onclick="sendQuickMessage('Confirm')">
+              ✅ Confirm
+            </button>
+            <button class="quick-pill action-pay" onclick="sendQuickMessage('Pay')">
+              💳 Pay
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('How does pickup work?')">
+              ℹ️ FAQ: Pickup
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('What can I sell?')">
+              🌾 Produce Catalog
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('What would you recommend for me?')">
+              ✨ Recommendations
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('I want to talk to a human')">
+              🧑‍💼 Human Support
+            </button>
+            <button class="quick-pill" onclick="sendQuickMessage('What is the status of my order?')">
+              📦 Check Status
+            </button>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-box">
+            <textarea id="farmer-input" placeholder="Type your produce offer or reply... (Press Enter to send)" onkeydown="handleChatKey(event)"></textarea>
+            <button class="send-btn" id="farmer-send-btn" onclick="sendFarmerMessage()">
+              <span>Send</span>
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 2: Runner Console
+         ==================================================================== -->
+    <div id="view-runner" class="view-pane">
+      <div class="runner-layout">
+        <!-- Top Filter Bar -->
+        <div class="runner-top-bar">
+          <div class="runner-selector">
+            <label>Active Runner Fleet:</label>
+            <select id="runner-id-select" onchange="loadRunnerData()">
+              <option value="Runner-01">Runner-01 (Nairobi Express)</option>
+              <option value="Runner-02">Runner-02 (Central Fleet)</option>
+              <option value="Runner-03">Runner-03 (Coast Logistics)</option>
+            </select>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-outline" onclick="loadRunnerData()">🔄 Refresh Pickups</button>
+          </div>
+        </div>
+
+        <!-- Two Columns: Available vs Claimed -->
+        <div class="runner-columns">
+          <!-- Available Pickups Column -->
+          <div class="runner-column-card">
+            <div class="column-header">
+              <h3>📦 Available Pickups <span class="badge badge-PENDING" id="available-count-badge">0</span></h3>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Unassigned Logistics Tasks</span>
+            </div>
+            <div class="task-list" id="available-tasks-container">
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">No available tasks right now. Confirm and pay for an order in Farmer Chat to generate pickup tasks.</p>
+            </div>
+          </div>
+
+          <!-- My Claimed Tasks Column -->
+          <div class="runner-column-card">
+            <div class="column-header">
+              <h3>🚚 My Active Pickups <span class="badge badge-ASSIGNED" id="assigned-count-badge">0</span></h3>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">Assigned to Current Fleet</span>
+            </div>
+            <div class="task-list" id="assigned-tasks-container">
+              <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">No assigned pickups for this runner. Accept an available task to begin.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         VIEW 3: Operations / Admin Dashboard
+         ==================================================================== -->
+    <div id="view-admin" class="view-pane">
+      <div class="admin-layout">
+        <!-- Executive KPI Cards -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Total Procurement Orders</div>
+            <div class="kpi-value" id="kpi-total-orders">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Authoritative GMV</div>
+            <div class="kpi-value" id="kpi-total-gmv">$0.00</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Active Logistics Tasks</div>
+            <div class="kpi-value" id="kpi-pending-collection">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Completed Orders</div>
+            <div class="kpi-value" id="kpi-completed-orders">0</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Human Escalations</div>
+            <div class="kpi-value" id="kpi-handoff-cases" style="color: #ef4444;">0</div>
+          </div>
+        </div>
+
+        <!-- Admin Sub-Navigation Tabs -->
+        <div class="admin-subtabs">
+          <button class="admin-subtab-btn active" id="btn-subtab-orders" onclick="switchAdminSubtab('orders-section')">
+            📦 Procurement Orders (<span id="admin-subtab-orders-count">0</span>)
+          </button>
+          <button class="admin-subtab-btn" id="btn-subtab-payments" onclick="switchAdminSubtab('payments-section')">
+            💳 Payments (<span id="admin-subtab-payments-count">0</span>)
+          </button>
+          <button class="admin-subtab-btn" id="btn-subtab-tasks" onclick="switchAdminSubtab('tasks-section')">
+            🚚 Logistics Tasks (<span id="admin-subtab-tasks-count">0</span>)
+          </button>
+          <button class="admin-subtab-btn" id="btn-subtab-handoffs" onclick="switchAdminSubtab('handoffs-section')">
+            ⚠️ Human Escalations (<span id="admin-subtab-handoffs-count">0</span>)
+          </button>
+        </div>
+
+        <!-- TAB 1: Orders Table Card -->
+        <div id="orders-section" class="admin-subtab-pane active">
+          <div class="admin-table-card">
+            <div class="table-toolbar">
+              <div class="search-box">
+                <input type="text" id="order-search-input" placeholder="Search Order ID, produce, farmer..." oninput="filterAdminOrders()">
+              </div>
+              <div class="filter-group">
+                <select id="order-status-filter" onchange="loadAdminOrders()">
+                  <option value="">All State Transitions</option>
+                  <option value="ORDER_CONFIRMED">ORDER_CONFIRMED</option>
+                  <option value="PAYMENT_PENDING">PAYMENT_PENDING</option>
+                  <option value="PAYMENT_CONFIRMED">PAYMENT_CONFIRMED</option>
+                  <option value="COLLECTION_PENDING">COLLECTION_PENDING</option>
+                  <option value="COLLECTION_ASSIGNED">COLLECTION_ASSIGNED</option>
+                  <option value="PICKED_UP">PICKED_UP</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                  <option value="EXCEPTION">EXCEPTION</option>
+                </select>
+                <button class="btn btn-outline" onclick="loadAdminDashboard()">🔄 Refresh</button>
+              </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Farmer Reference</th>
+                    <th>Produce & Volume</th>
+                    <th>Total Amount</th>
+                    <th>Order State</th>
+                    <th>Payment</th>
+                    <th>Logistics</th>
+                    <th>Created</th>
+                    <th>Audit Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-orders-tbody">
+                  <tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading orders...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: Payments Table Card -->
+        <div id="payments-section" class="admin-subtab-pane">
+          <div class="admin-table-card">
+            <div class="table-toolbar">
+              <div class="search-box">
+                <input type="text" id="payment-search-input" placeholder="Search Payment ID, Order ID..." oninput="filterAdminPayments()">
+              </div>
+              <button class="btn btn-outline" onclick="loadAdminPayments()">🔄 Refresh</button>
+            </div>
+            <div style="overflow-x: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Payment ID</th>
+                    <th>Order Reference</th>
+                    <th>Farmer ID</th>
+                    <th>Amount</th>
+                    <th>Payment Status</th>
+                    <th>Provider Reference</th>
+                    <th>Processed At</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-payments-tbody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading payments...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: Logistics Tasks Table Card -->
+        <div id="tasks-section" class="admin-subtab-pane">
+          <div class="admin-table-card">
+            <div class="table-toolbar">
+              <div class="search-box">
+                <input type="text" id="task-search-input" placeholder="Search Task ID, runner, location..." oninput="filterAdminTasks()">
+              </div>
+              <button class="btn btn-outline" onclick="loadAdminTasks()">🔄 Refresh</button>
+            </div>
+            <div style="overflow-x: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Task ID</th>
+                    <th>Order Reference</th>
+                    <th>Task Status</th>
+                    <th>Assigned Fleet / Runner</th>
+                    <th>Pickup Location</th>
+                    <th>Scheduled Window</th>
+                    <th>Operational Notes</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-tasks-tbody">
+                  <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading logistics tasks...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4: Human Escalations Table Card -->
+        <div id="handoffs-section" class="admin-subtab-pane">
+          <div class="admin-table-card">
+            <div class="table-toolbar">
+              <div class="search-box">
+                <input type="text" id="handoff-search-input" placeholder="Search Case ID, farmer, reason..." oninput="filterAdminHandoffs()">
+              </div>
+              <button class="btn btn-outline" onclick="loadAdminHandoffs()">🔄 Refresh</button>
+            </div>
+            <div style="overflow-x: auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Case ID</th>
+                    <th>Farmer Reference</th>
+                    <th>Reason</th>
+                    <th>Summary / Issue</th>
+                    <th>Order Ref</th>
+                    <th>Case Status</th>
+                    <th>Assigned Staff</th>
+                    <th>Escalated At</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-handoffs-tbody">
+                  <tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading human escalation cases...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ======================================================================
+       Order Detail & Audit Drawer Modal
+       ====================================================================== -->
+  <div class="modal-overlay" id="order-modal" onclick="closeOrderModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 id="modal-order-id">Order Audit</h2>
+          <p>Comprehensive state machine verification & immutable audit trail</p>
+        </div>
+        <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);" onclick="document.getElementById('order-modal').classList.remove('active')">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Progression Stepper -->
+        <div class="audit-card">
+          <h4>State Progression Lifecyle</h4>
+          <div class="stepper" id="modal-stepper">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Two Column Details: Payment & Logistics -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="audit-card">
+            <h4>💳 Deterministic Payment</h4>
+            <div id="modal-payment-details" style="font-size: 0.825rem; display: flex; flex-direction: column; gap: 0.45rem;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+          <div class="audit-card">
+            <h4>🚚 Logistics & Collection Task</h4>
+            <div id="modal-collection-details" style="font-size: 0.825rem; display: flex; flex-direction: column; gap: 0.45rem;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Conversation Transcript -->
+        <div class="audit-card">
+          <h4>💬 Farmer Dialogue Transcript</h4>
+          <div class="transcript-box" id="modal-transcript-box">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Agent Trace & Decision Audit -->
+        <div class="audit-card">
+          <h4>🛡️ Agent Trace & Decision Audit</h4>
+          <div id="modal-traces-container" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 260px; overflow-y: auto;">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       Runner Action Dialog Modal (Failure & Reschedule)
+       ====================================================================== -->
+  <div class="modal-overlay" id="runner-action-modal" onclick="closeRunnerModal(event)">
+    <div class="modal-content" style="max-width: 520px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h2 id="runner-modal-title">Logistics Action</h2>
+          <p id="runner-modal-subtitle">Update task status</p>
+        </div>
+        <button class="btn btn-outline" style="color: white; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);" onclick="closeRunnerModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 1.5rem; gap: 1rem;">
+        <div>
+          <label id="runner-modal-input-label" style="display: block; font-size: 0.85rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.45rem;">Input Details</label>
+          <input type="text" id="runner-modal-input" style="width: 100%; padding: 0.65rem 0.85rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: var(--font-family); font-size: 0.9rem; outline: none;" placeholder="Enter details..." onkeydown="if(event.key==='Enter') submitRunnerModal()">
+          <p id="runner-modal-error" style="color: var(--danger); font-size: 0.78rem; font-weight: 700; margin-top: 0.35rem; display: none;">Please provide a valid value.</p>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.65rem; margin-top: 0.5rem;">
+          <button class="btn btn-secondary" onclick="closeRunnerModal()">Cancel</button>
+          <button class="btn btn-primary" id="runner-modal-submit-btn" onclick="submitRunnerModal()">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-brand">
+      ORCA AI SOLUTIONS • Autonomous Agricultural Procurement Platform
+    </div>
+    <div>
+      Operating Engine: Deterministic State Machine v1.0 • Multi-Channel Logistics API
+    </div>
+  </footer>
+
+  <!-- JavaScript Client Logic -->
+  <script>
+    const API_BASE = '';
+    let currentFarmerId = 'farmer_001';
+    let adminOrdersCache = [];
+    let demoSamples = [];
+    let isViewingSample = false;
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      setupTabNavigation();
+      loadDemoSamples();
+      refreshFarmerContext();
+      loadRunnerData();
+      loadAdminDashboard();
+      setInterval(autoSyncActiveTab, 5000);
+    });
+
+    // Toast Notification helper
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // One-Click Demo Reset
+    async function triggerDemoReset() {
+      if (!confirm('Reset all demo orders, payments, tasks, and conversational contexts to clean baseline?')) {
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/demo/reset`, { method: 'POST' });
+        if (!res.ok) throw new Error('Reset failed with HTTP ' + res.status);
+        const data = await res.json();
+        showToast('🧹 ' + data.message, 'success');
+
+        // Reset farmer chat view to clean baseline farmer_001
+        currentFarmerId = 'farmer_001';
+        document.getElementById('farmer-display-id').textContent = currentFarmerId;
+        document.getElementById('chat-messages-container').innerHTML = `
+          <div class="msg-row agent">
+            <div class="msg-bubble">Hello! Welcome to ORCA AI Solutions Agricultural Procurement.
+Please tell me what produce you have available, quantity, and your pickup location.</div>
+            <div class="msg-meta">
+              <img src="/static/logo.png" class="agent-mini-avatar" alt="ORCA">
+              <strong>ORCA Agent</strong> • Just now
+            </div>
+          </div>
+        `;
+        const handoffEl = document.getElementById('farmer-handoff-status');
+        if (handoffEl) handoffEl.textContent = 'None';
+
+        await Promise.all([
+          refreshFarmerContext(false),
+          loadRunnerData(false),
+          loadAdminDashboard(false)
+        ]);
+      } catch (err) {
+        showToast('Failed to reset demo: ' + err.message, 'danger');
+      }
+    }
+
+    // Tab Navigation
+    function setupTabNavigation() {
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          buttons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const target = btn.getAttribute('data-target');
+          document.querySelectorAll('.view-pane').forEach(v => v.classList.remove('active'));
+          document.getElementById(target).classList.add('active');
+
+          if (target === 'view-runner') loadRunnerData();
+          if (target === 'view-admin') loadAdminDashboard();
+          if (target === 'view-farmer') refreshFarmerContext();
+        });
+      });
+    }
+
+    function autoSyncActiveTab() {
+      const activeTab = document.querySelector('.tab-btn.active');
+      if (!activeTab) return;
+      const target = activeTab.getAttribute('data-target');
+      if (target === 'view-runner') loadRunnerData(false);
+      if (target === 'view-admin') loadAdminDashboard(false);
+      if (target === 'view-farmer') refreshFarmerContext(false);
+    }
+
+    // ========================================================================
+    // Farmer Chat Actions
+    // ========================================================================
+    function handleChatKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendFarmerMessage();
+      }
+    }
+
+    function sendQuickMessage(text) {
+      if (isViewingSample) {
+        startLiveConversation();
+      }
+      const input = document.getElementById('farmer-input');
+      input.value = text;
+      sendFarmerMessage();
+    }
+
+    function showTypingIndicator() {
+      hideTypingIndicator();
+      const container = document.getElementById('chat-messages-container');
+      const row = document.createElement('div');
+      row.className = 'msg-row agent';
+      row.id = 'agent-typing-indicator';
+      row.innerHTML = `
+        <div class="msg-bubble typing-bubble">
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span class="typing-dot"></span>
+          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); margin-left: 0.35rem;">ORCA Agent is typing...</span>
+        </div>
+      `;
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function hideTypingIndicator() {
+      const el = document.getElementById('agent-typing-indicator');
+      if (el) el.remove();
+    }
+
+    async function sendFarmerMessage() {
+      if (isViewingSample) {
+        showToast('Click "Start New Live Conversation" to interact with the live AI agent.', 'warning');
+        return;
+      }
+
+      const input = document.getElementById('farmer-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendChatMessage('farmer', text);
+      input.value = '';
+
+      const sendBtn = document.getElementById('farmer-send-btn');
+      sendBtn.disabled = true;
+      showTypingIndicator();
+
+      try {
+        const res = await fetch(`${API_BASE}/agent/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sender_id: currentFarmerId,
+            channel: 'web_chat',
+            text: text
+          })
+        });
+
+        hideTypingIndicator();
+        if (!res.ok) throw new Error('Agent API failed with ' + res.status);
+        const data = await res.json();
+        appendChatMessage('agent', data.reply);
+        await refreshFarmerContext();
+        showToast('Message processed', 'success');
+      } catch (err) {
+        hideTypingIndicator();
+        appendChatMessage('agent', 'Error connecting to procurement server: ' + err.message);
+        showToast(err.message, 'danger');
+      } finally {
+        hideTypingIndicator();
+        sendBtn.disabled = false;
+      }
+    }
+
+    function appendChatMessage(role, text) {
+      const container = document.getElementById('chat-messages-container');
+      const row = document.createElement('div');
+      row.className = `msg-row ${role}`;
+
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble';
+      bubble.textContent = text;
+
+      const meta = document.createElement('div');
+      meta.className = 'msg-meta';
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      
+      if (role === 'agent') {
+        meta.innerHTML = `<img src="/static/logo.png" class="agent-mini-avatar" alt="ORCA"> <strong>ORCA Agent</strong> • ${timeStr}`;
+      } else {
+        meta.innerHTML = `<strong>Farmer (${currentFarmerId})</strong> • ${timeStr}`;
+      }
+
+      row.appendChild(bubble);
+      row.appendChild(meta);
+      container.appendChild(row);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function refreshFarmerContext(notify = true) {
+      try {
+        const res = await fetch(`${API_BASE}/api/farmer/context/${currentFarmerId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.found) {
+          const badge = document.getElementById('farmer-badge-state');
+          badge.textContent = data.state;
+          badge.className = `badge badge-${data.state}`;
+
+          document.getElementById('farmer-order-id').textContent = data.current_order_id || 'None';
+          document.getElementById('farmer-payment-status').textContent = data.payment ? data.payment.status : 'None';
+          document.getElementById('farmer-collection-status').textContent = data.collection_task ? data.collection_task.status : 'None';
+        } else {
+          const badge = document.getElementById('farmer-badge-state');
+          badge.textContent = 'OFFER_RECEIVED';
+          badge.className = 'badge badge-ORDER_CONFIRMED';
+          document.getElementById('farmer-order-id').textContent = 'None';
+          document.getElementById('farmer-payment-status').textContent = '-';
+          document.getElementById('farmer-collection-status').textContent = '-';
+        }
+
+        const handoffEl = document.getElementById('farmer-handoff-status');
+        if (handoffEl) {
+          if (data.handoff_case) {
+            const hc = data.handoff_case;
+            handoffEl.innerHTML = `<span class="badge badge-EXCEPTION" title="${hc.summary}">${hc.case_id} (${hc.status}: ${hc.reason})</span>`;
+          } else {
+            handoffEl.textContent = 'None';
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching farmer context:', e);
+      }
+    }
+
+    async function loadDemoSamples() {
+      try {
+        const res = await fetch(`${API_BASE}/api/demo/samples`);
+        if (res.ok) {
+          const data = await res.json();
+          demoSamples = data.samples || [];
+        }
+      } catch (err) {
+        console.error('Failed to load demo samples:', err);
+      }
+    }
+
+    async function selectSampleScenario(scenarioKey) {
+      if (!demoSamples.length) {
+        await loadDemoSamples();
+      }
+      const sample = demoSamples.find(s => s.id === scenarioKey || s.key === scenarioKey);
+      if (!sample) {
+        showToast('Sample scenario not found', 'warning');
+        return;
+      }
+
+      isViewingSample = true;
+      currentFarmerId = sample.farmer_id;
+      document.getElementById('farmer-display-id').textContent = currentFarmerId;
+
+      // Update chip active states
+      document.querySelectorAll('.sample-chip').forEach(el => el.classList.remove('active'));
+      const activeBtn = document.getElementById(`btn-sample-${scenarioKey}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      // Update banner to prominent read-only sample warning
+      const banner = document.getElementById('conversation-mode-banner');
+      banner.style.background = '#fffbeb';
+      banner.style.color = '#92400e';
+      banner.style.borderBottom = '1px solid #fde68a';
+      document.getElementById('conversation-mode-icon').textContent = '📌';
+      document.getElementById('conversation-mode-text').textContent = 'Sample Farmer Conversation (Read-Only Demo Reference) — Not a live AI interaction';
+      const tag = document.getElementById('conversation-mode-tag');
+      tag.textContent = 'Demo Reference';
+      tag.className = 'badge badge-EXCEPTION';
+
+      // Disable chat input
+      const input = document.getElementById('farmer-input');
+      input.value = '';
+      input.disabled = true;
+      input.placeholder = 'Viewing sample conversation. Click "Start New Live Conversation" to interact with the live AI agent.';
+      document.getElementById('farmer-send-btn').disabled = true;
+
+      // Render transcript
+      const container = document.getElementById('chat-messages-container');
+      container.innerHTML = sample.transcript.map(msg => `
+        <div class="msg-row ${msg.role}">
+          <div class="msg-bubble">${msg.text}</div>
+          <div class="msg-meta">
+            ${msg.role === 'agent' 
+              ? '<img src="/static/logo.png" class="agent-mini-avatar" alt="ORCA"> <strong>ORCA Agent</strong>' 
+              : `<strong>Farmer (${sample.farmer_id})</strong>`}
+            • Sample Transcript
+          </div>
+        </div>
+      `).join('');
+      container.scrollTop = container.scrollHeight;
+
+      // Refresh sidebar context
+      await refreshFarmerContext(false);
+      showToast(`Loaded ${sample.title} reference transcript`, 'info');
+    }
+
+    function startLiveConversation() {
+      isViewingSample = false;
+      document.querySelectorAll('.sample-chip').forEach(el => el.classList.remove('active'));
+
+      currentFarmerId = 'farmer_' + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('farmer-display-id').textContent = currentFarmerId;
+
+      // Reset banner to Live Interactive
+      const banner = document.getElementById('conversation-mode-banner');
+      banner.style.background = '#e0f2fe';
+      banner.style.color = '#0369a1';
+      banner.style.borderBottom = '1px solid #bae6fd';
+      document.getElementById('conversation-mode-icon').textContent = '💬';
+      document.getElementById('conversation-mode-text').textContent = 'Live AI Procurement Session (Sandbox) — Real-time Intent & Deterministic Engine';
+      const tag = document.getElementById('conversation-mode-tag');
+      tag.textContent = 'Live Interactive';
+      tag.className = 'badge badge-ORDER_CONFIRMED';
+
+      // Re-enable chat input
+      const input = document.getElementById('farmer-input');
+      input.value = '';
+      input.disabled = false;
+      input.placeholder = 'Type your produce offer or reply... (Press Enter to send)';
+      document.getElementById('farmer-send-btn').disabled = false;
+
+      // Initial greeting
+      const container = document.getElementById('chat-messages-container');
+      container.innerHTML = `
+        <div class="msg-row agent">
+          <div class="msg-bubble">Hello! New procurement session initialized for ${currentFarmerId}.
+Please tell me what produce you have available, quantity, and your pickup location.</div>
+          <div class="msg-meta">
+            <img src="/static/logo.png" class="agent-mini-avatar" alt="ORCA">
+            <strong>ORCA Agent</strong> • Just now
+          </div>
+        </div>
+      `;
+
+      refreshFarmerContext(false);
+      showToast(`Started fresh live session for ${currentFarmerId}`, 'success');
+    }
+
+    function resetFarmerChat() {
+      startLiveConversation();
+    }
+
+    // ========================================================================
+    // Runner Console Actions
+    // ========================================================================
+    async function loadRunnerData(showFeedback = true) {
+      const runnerId = document.getElementById('runner-id-select').value;
+      try {
+        const [availRes, assignedRes] = await Promise.all([
+          fetch(`${API_BASE}/api/runner/tasks/available`),
+          fetch(`${API_BASE}/api/runner/tasks/assigned?runner_id=${encodeURIComponent(runnerId)}`)
+        ]);
+
+        if (availRes.ok) {
+          const availData = await availRes.json();
+          renderAvailableTasks(availData.tasks || []);
+        }
+
+        if (assignedRes.ok) {
+          const assignedData = await assignedRes.json();
+          renderAssignedTasks(assignedData.tasks || [], runnerId);
+        }
+
+        if (showFeedback) showToast('Runner data refreshed', 'info');
+      } catch (err) {
+        console.error('Error loading runner data:', err);
+      }
+    }
+
+    function renderAvailableTasks(tasks) {
+      const container = document.getElementById('available-tasks-container');
+      document.getElementById('available-count-badge').textContent = tasks.length;
+
+      if (!tasks.length) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">No pending collection tasks available.</p>`;
+        return;
+      }
+
+      container.innerHTML = tasks.map(t => `
+        <div class="task-card">
+          <div class="task-card-header">
+            <span class="task-id">${t.id}</span>
+            <span class="badge badge-PENDING">PENDING</span>
+          </div>
+          <div class="task-card-grid">
+            <div><strong>Order:</strong> ${t.order_id}</div>
+            <div><strong>Produce:</strong> ${t.quantity} ${t.unit} ${t.produce_type}</div>
+            <div style="grid-column: span 2;"><strong>Location:</strong> ${t.pickup_location}</div>
+            <div style="grid-column: span 2;"><strong>Scheduled:</strong> ${t.scheduled_time_str || 'As scheduled'}</div>
+          </div>
+          <div class="task-card-actions">
+            <button class="btn btn-primary" onclick="runnerAcceptTask('${t.id}')">
+              ✅ Accept Task
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderAssignedTasks(tasks, runnerId) {
+      const container = document.getElementById('assigned-tasks-container');
+      document.getElementById('assigned-count-badge').textContent = tasks.length;
+
+      if (!tasks.length) {
+        container.innerHTML = `<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 2rem;">No active tasks assigned to ${runnerId}.</p>`;
+        return;
+      }
+
+      container.innerHTML = tasks.map(t => {
+        let actionButtons = '';
+        if (t.status === 'ASSIGNED') {
+          actionButtons = `
+            <button class="btn btn-success" onclick="runnerConfirmPickup('${t.id}')">✅ Confirm Pickup</button>
+            <button class="btn btn-secondary" onclick="runnerRejectTask('${t.id}')">❌ Reject</button>
+            <button class="btn btn-danger" onclick="runnerReportFailure('${t.id}')">⚠️ Report Issue</button>
+          `;
+        } else if (t.status === 'FAILED') {
+          actionButtons = `
+            <button class="btn btn-primary" onclick="runnerRescheduleTask('${t.id}')">🔄 Reschedule Task</button>
+          `;
+        } else {
+          actionButtons = `<span style="font-size: 0.8rem; color: var(--harvest-green); font-weight: 700;">Pickup Completed</span>`;
+        }
+
+        return `
+          <div class="task-card">
+            <div class="task-card-header">
+              <span class="task-id">${t.id}</span>
+              <span class="badge badge-${t.status}">${t.status}</span>
+            </div>
+            <div class="task-card-grid">
+              <div><strong>Order:</strong> ${t.order_id}</div>
+              <div><strong>Produce:</strong> ${t.quantity} ${t.unit} ${t.produce_type}</div>
+              <div style="grid-column: span 2;"><strong>Pickup Location:</strong> ${t.pickup_location}</div>
+              <div style="grid-column: span 2;"><strong>Scheduled:</strong> ${t.scheduled_time_str || 'As scheduled'}</div>
+              ${t.failure_reason ? `<div style="grid-column: span 2; color: var(--danger);"><strong>Failure Reason:</strong> ${t.failure_reason}</div>` : ''}
+            </div>
+            <div class="task-card-actions">
+              ${actionButtons}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function runnerAcceptTask(taskId) {
+      const runnerId = document.getElementById('runner-id-select').value;
+      try {
+        const res = await fetch(`${API_BASE}/api/runner/tasks/${taskId}/accept`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ runner_id: runnerId })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Accept failed');
+        }
+        showToast(`Task ${taskId} accepted by ${runnerId}`, 'success');
+        loadRunnerData(false);
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function runnerRejectTask(taskId) {
+      const runnerId = document.getElementById('runner-id-select').value;
+      try {
+        const res = await fetch(`${API_BASE}/api/runner/tasks/${taskId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ runner_id: runnerId, reason: 'Runner unavailable' })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Reject failed');
+        }
+        showToast(`Task ${taskId} released back to pool`, 'info');
+        loadRunnerData(false);
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function runnerConfirmPickup(taskId) {
+      const runnerId = document.getElementById('runner-id-select').value;
+      try {
+        const res = await fetch(`${API_BASE}/api/runner/tasks/${taskId}/confirm-pickup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ runner_id: runnerId })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Confirmation failed');
+        }
+        showToast(`Produce picked up! Order completed!`, 'success');
+        loadRunnerData(false);
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    let pendingRunnerAction = null;
+
+    function openRunnerFailureModal(taskId) {
+      pendingRunnerAction = { type: 'fail', taskId: taskId };
+      document.getElementById('runner-modal-title').textContent = '⚠️ Report Pickup Issue';
+      document.getElementById('runner-modal-subtitle').textContent = `Task ID: ${taskId}`;
+      document.getElementById('runner-modal-input-label').textContent = 'Reason for pickup failure:';
+      const input = document.getElementById('runner-modal-input');
+      input.value = '';
+      input.placeholder = 'e.g. Farmer produce not ready / Location unreachable';
+      document.getElementById('runner-modal-error').style.display = 'none';
+      const submitBtn = document.getElementById('runner-modal-submit-btn');
+      submitBtn.className = 'btn btn-danger';
+      submitBtn.textContent = 'Report Failure';
+      document.getElementById('runner-action-modal').classList.add('active');
+      input.focus();
+    }
+
+    function openRunnerRescheduleModal(taskId) {
+      pendingRunnerAction = { type: 'reschedule', taskId: taskId };
+      document.getElementById('runner-modal-title').textContent = '🔄 Reschedule Pickup Window';
+      document.getElementById('runner-modal-subtitle').textContent = `Task ID: ${taskId}`;
+      document.getElementById('runner-modal-input-label').textContent = 'New scheduled pickup window:';
+      const input = document.getElementById('runner-modal-input');
+      input.value = 'Tomorrow 3:00 PM';
+      input.placeholder = 'e.g. Tomorrow 3:00 PM';
+      document.getElementById('runner-modal-error').style.display = 'none';
+      const submitBtn = document.getElementById('runner-modal-submit-btn');
+      submitBtn.className = 'btn btn-primary';
+      submitBtn.textContent = 'Reschedule';
+      document.getElementById('runner-action-modal').classList.add('active');
+      input.focus();
+    }
+
+    function closeRunnerModal(e) {
+      if (!e || e.target.id === 'runner-action-modal' || !e.target) {
+        document.getElementById('runner-action-modal').classList.remove('active');
+        pendingRunnerAction = null;
+      }
+    }
+
+    async function submitRunnerModal() {
+      if (!pendingRunnerAction) return;
+      const input = document.getElementById('runner-modal-input');
+      const val = input.value.trim();
+      const errorEl = document.getElementById('runner-modal-error');
+
+      if (!val) {
+        errorEl.textContent = pendingRunnerAction.type === 'fail' 
+          ? 'Please provide a failure reason.' 
+          : 'Please provide a new scheduled pickup window.';
+        errorEl.style.display = 'block';
+        input.focus();
+        return;
+      }
+      errorEl.style.display = 'none';
+
+      const { type, taskId } = pendingRunnerAction;
+      const runnerId = document.getElementById('runner-id-select').value;
+      closeRunnerModal();
+
+      if (type === 'fail') {
+        try {
+          const res = await fetch(`${API_BASE}/api/runner/tasks/${taskId}/fail`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ runner_id: runnerId, reason: val })
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Failure report failed');
+          }
+          showToast(`Reported issue for ${taskId}. Order moved to EXCEPTION.`, 'warning');
+          loadRunnerData(false);
+        } catch (err) {
+          showToast(err.message, 'danger');
+        }
+      } else if (type === 'reschedule') {
+        try {
+          const res = await fetch(`${API_BASE}/api/runner/tasks/${taskId}/reschedule`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ new_time_str: val })
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.detail || 'Reschedule failed');
+          }
+          showToast(`Task ${taskId} rescheduled to COLLECTION_PENDING.`, 'success');
+          loadRunnerData(false);
+        } catch (err) {
+          showToast(err.message, 'danger');
+        }
+      }
+    }
+
+    function runnerReportFailure(taskId) {
+      openRunnerFailureModal(taskId);
+    }
+
+    function runnerRescheduleTask(taskId) {
+      openRunnerRescheduleModal(taskId);
+    }
+
+    // ========================================================================
+    // Operations / Admin Dashboard Actions
+    // ========================================================================
+    function switchAdminSubtab(targetId) {
+      document.querySelectorAll('.admin-subtab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.admin-subtab-btn').forEach(b => b.classList.remove('active'));
+
+      const pane = document.getElementById(targetId);
+      if (pane) pane.classList.add('active');
+
+      if (targetId === 'orders-section') document.getElementById('btn-subtab-orders').classList.add('active');
+      if (targetId === 'payments-section') {
+        document.getElementById('btn-subtab-payments').classList.add('active');
+        loadAdminPayments();
+      }
+      if (targetId === 'tasks-section') {
+        document.getElementById('btn-subtab-tasks').classList.add('active');
+        loadAdminTasks();
+      }
+      if (targetId === 'handoffs-section') {
+        document.getElementById('btn-subtab-handoffs').classList.add('active');
+        loadAdminHandoffs();
+      }
+    }
+
+    let adminPaymentsCache = [];
+    let adminTasksCache = [];
+    let adminHandoffsCache = [];
+
+    async function loadAdminDashboard(showFeedback = true) {
+      await Promise.all([
+        loadAdminStats(),
+        loadAdminOrders(),
+        loadAdminPayments(),
+        loadAdminTasks(),
+        loadAdminHandoffs()
+      ]);
+      if (showFeedback) showToast('Admin dashboard refreshed', 'info');
+    }
+
+    async function loadAdminStats() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/stats`);
+        if (!res.ok) return;
+        const stats = await res.json();
+
+        document.getElementById('kpi-total-orders').textContent = stats.total_orders;
+        document.getElementById('kpi-total-gmv').textContent = `$${stats.total_gmv.toFixed(2)}`;
+        document.getElementById('kpi-pending-collection').textContent = stats.pending_collection;
+        document.getElementById('kpi-completed-orders').textContent = stats.completed_orders;
+        const handoffKpi = document.getElementById('kpi-handoff-cases');
+        if (handoffKpi) handoffKpi.textContent = stats.open_handoffs || 0;
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    async function loadAdminOrders() {
+      const filter = document.getElementById('order-status-filter').value;
+      try {
+        const url = filter ? `${API_BASE}/api/admin/orders?status=${encodeURIComponent(filter)}` : `${API_BASE}/api/admin/orders`;
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const data = await res.json();
+        adminOrdersCache = data.orders || [];
+        const countBadge = document.getElementById('admin-subtab-orders-count');
+        if (countBadge) countBadge.textContent = adminOrdersCache.length;
+        renderAdminOrdersTable(adminOrdersCache);
+      } catch (err) {
+        console.error('Error loading orders:', err);
+      }
+    }
+
+    function renderAdminOrdersTable(orders) {
+      const tbody = document.getElementById('admin-orders-tbody');
+      if (!orders.length) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">No orders matching criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => {
+        const payStatus = o.payment ? o.payment.status : 'NONE';
+        const collStatus = o.collection_task ? `${o.collection_task.status} (${o.collection_task.runner_id || 'unassigned'})` : 'NONE';
+        const createdDate = o.created_at ? new Date(o.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+
+        return `
+          <tr>
+            <td class="order-id-cell">${o.id}</td>
+            <td><strong>${o.farmer_id}</strong></td>
+            <td>${o.quantity} ${o.unit} ${o.produce_type}</td>
+            <td><strong>$${o.total_amount.toFixed(2)}</strong></td>
+            <td><span class="badge badge-${o.status}">${o.status}</span></td>
+            <td><span class="badge badge-${payStatus}">${payStatus}</span></td>
+            <td><span style="font-size: 0.8rem; font-weight: 600;">${collStatus}</span></td>
+            <td><span style="font-size: 0.8rem; color: var(--text-muted);">${createdDate}</span></td>
+            <td>
+              <button class="btn btn-outline" onclick="openOrderModal('${o.id}')">
+                🔍 Inspect
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminOrders() {
+      const term = document.getElementById('order-search-input').value.toLowerCase();
+      if (!term) {
+        renderAdminOrdersTable(adminOrdersCache);
+        return;
+      }
+      const filtered = adminOrdersCache.filter(o => 
+        o.id.toLowerCase().includes(term) ||
+        o.farmer_id.toLowerCase().includes(term) ||
+        o.produce_type.toLowerCase().includes(term) ||
+        o.status.toLowerCase().includes(term)
+      );
+      renderAdminOrdersTable(filtered);
+    }
+
+    async function loadAdminPayments() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/payments`);
+        if (!res.ok) return;
+        const data = await res.json();
+        adminPaymentsCache = data.payments || [];
+        const countBadge = document.getElementById('admin-subtab-payments-count');
+        if (countBadge) countBadge.textContent = adminPaymentsCache.length;
+        renderAdminPaymentsTable(adminPaymentsCache);
+      } catch (err) {
+        console.error('Error loading payments:', err);
+      }
+    }
+
+    function renderAdminPaymentsTable(payments) {
+      const tbody = document.getElementById('admin-payments-tbody');
+      if (!tbody) return;
+      if (!payments.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No payment records created yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = payments.map(p => {
+        const timeStr = p.created_at ? new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+        return `
+          <tr>
+            <td class="order-id-cell">${p.id}</td>
+            <td><strong style="cursor: pointer; color: var(--primary);" onclick="openOrderModal('${p.order_id}')">${p.order_id}</strong></td>
+            <td><strong>${p.farmer_id}</strong></td>
+            <td><strong>$${p.amount.toFixed(2)} ${p.currency}</strong></td>
+            <td><span class="badge badge-${p.status}">${p.status}</span></td>
+            <td><span style="font-family: monospace; font-size: 0.8rem;">${p.provider_reference || 'N/A'}</span></td>
+            <td><span style="font-size: 0.8rem; color: var(--text-muted);">${timeStr}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminPayments() {
+      const term = (document.getElementById('payment-search-input').value || '').toLowerCase();
+      if (!term) {
+        renderAdminPaymentsTable(adminPaymentsCache);
+        return;
+      }
+      const filtered = adminPaymentsCache.filter(p =>
+        p.id.toLowerCase().includes(term) ||
+        p.order_id.toLowerCase().includes(term) ||
+        p.farmer_id.toLowerCase().includes(term) ||
+        p.status.toLowerCase().includes(term)
+      );
+      renderAdminPaymentsTable(filtered);
+    }
+
+    async function loadAdminTasks() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/tasks`);
+        if (!res.ok) return;
+        const data = await res.json();
+        adminTasksCache = data.tasks || [];
+        const countBadge = document.getElementById('admin-subtab-tasks-count');
+        if (countBadge) countBadge.textContent = adminTasksCache.length;
+        renderAdminTasksTable(adminTasksCache);
+      } catch (err) {
+        console.error('Error loading tasks:', err);
+      }
+    }
+
+    function renderAdminTasksTable(tasks) {
+      const tbody = document.getElementById('admin-tasks-tbody');
+      if (!tbody) return;
+      if (!tasks.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No logistics tasks created yet.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = tasks.map(t => {
+        return `
+          <tr>
+            <td class="order-id-cell">${t.id}</td>
+            <td><strong style="cursor: pointer; color: var(--primary);" onclick="openOrderModal('${t.order_id}')">${t.order_id}</strong></td>
+            <td><span class="badge badge-${t.status}">${t.status}</span></td>
+            <td><strong>${t.runner_id || 'Unassigned'}</strong></td>
+            <td>${t.pickup_location}</td>
+            <td>${t.scheduled_time_str || 'Standard'}</td>
+            <td>${t.failure_reason ? `<span style="color: var(--danger); font-weight: 700;">${t.failure_reason}</span>` : '<span style="color: var(--text-muted);">-</span>'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminTasks() {
+      const term = (document.getElementById('task-search-input').value || '').toLowerCase();
+      if (!term) {
+        renderAdminTasksTable(adminTasksCache);
+        return;
+      }
+      const filtered = adminTasksCache.filter(t =>
+        t.id.toLowerCase().includes(term) ||
+        t.order_id.toLowerCase().includes(term) ||
+        (t.runner_id && t.runner_id.toLowerCase().includes(term)) ||
+        t.pickup_location.toLowerCase().includes(term) ||
+        t.status.toLowerCase().includes(term)
+      );
+      renderAdminTasksTable(filtered);
+    }
+
+    async function loadAdminHandoffs() {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/handoffs`);
+        if (!res.ok) return;
+        const data = await res.json();
+        adminHandoffsCache = data.cases || [];
+        const countBadge = document.getElementById('admin-subtab-handoffs-count');
+        if (countBadge) countBadge.textContent = adminHandoffsCache.length;
+        renderAdminHandoffsTable(adminHandoffsCache);
+      } catch (err) {
+        console.error('Error loading handoffs:', err);
+      }
+    }
+
+    function renderAdminHandoffsTable(cases) {
+      const tbody = document.getElementById('admin-handoffs-tbody');
+      if (!tbody) return;
+      if (!cases.length) {
+        tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; color: var(--text-muted); padding: 2rem;">No operational escalations recorded.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = cases.map(c => {
+        const timeStr = c.created_at ? new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-';
+        const orderLink = c.order_id 
+          ? `<span style="cursor: pointer; color: var(--primary); font-family: monospace; font-weight: 700;" onclick="openOrderModal('${c.order_id}')">${c.order_id}</span>`
+          : `<span style="color: var(--text-muted);">-</span>`;
+        const actionBtn = (c.status === 'OPEN' || c.status === 'ASSIGNED')
+          ? `<button class="btn btn-outline" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;" onclick="resolveHandoffCase('${c.case_id}')">Resolve</button>`
+          : `<span style="color: var(--success); font-weight: 700; font-size: 0.75rem;">Resolved</span>`;
+
+        return `
+          <tr>
+            <td class="order-id-cell">${c.case_id}</td>
+            <td><strong>${c.farmer_id}</strong></td>
+            <td><span class="badge badge-EXCEPTION">${c.reason}</span></td>
+            <td>${c.summary}</td>
+            <td>${orderLink}</td>
+            <td><span class="badge badge-${c.status}">${c.status}</span></td>
+            <td>${c.assigned_to || '<span style="color: var(--text-muted);">Unassigned</span>'}</td>
+            <td><span style="font-size: 0.8rem; color: var(--text-muted);">${timeStr}</span></td>
+            <td>${actionBtn}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterAdminHandoffs() {
+      const term = (document.getElementById('handoff-search-input').value || '').toLowerCase();
+      if (!term) {
+        renderAdminHandoffsTable(adminHandoffsCache);
+        return;
+      }
+      const filtered = adminHandoffsCache.filter(c =>
+        c.case_id.toLowerCase().includes(term) ||
+        c.farmer_id.toLowerCase().includes(term) ||
+        c.reason.toLowerCase().includes(term) ||
+        c.summary.toLowerCase().includes(term) ||
+        (c.order_id && c.order_id.toLowerCase().includes(term))
+      );
+      renderAdminHandoffsTable(filtered);
+    }
+
+    async function resolveHandoffCase(caseId) {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/handoffs/${caseId}/resolve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: 'Resolved by Admin Operations Console' })
+        });
+        if (!res.ok) throw new Error('Failed to resolve case ' + caseId);
+        showToast(`Escalation ${caseId} marked RESOLVED`, 'success');
+        await Promise.all([loadAdminHandoffs(), loadAdminStats()]);
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    async function openOrderModal(orderId) {
+      try {
+        const res = await fetch(`${API_BASE}/api/admin/orders/${orderId}`);
+        if (!res.ok) throw new Error('Order detail lookup failed');
+        const data = await res.json();
+
+        document.getElementById('modal-order-id').textContent = `Order Audit: ${data.order.id}`;
+
+        // Render Stepper
+        const stepper = document.getElementById('modal-stepper');
+        const prog = data.progression || [];
+        stepper.innerHTML = `
+          <div class="stepper-line"></div>
+          ${prog.map((step, idx) => `
+            <div class="stepper-item ${step.reached ? 'reached' : ''}">
+              <div class="stepper-circle">${step.reached ? '✓' : idx + 1}</div>
+              <div class="stepper-label">${step.label}</div>
+            </div>
+          `).join('')}
+        `;
+
+        // Payment details
+        const payBox = document.getElementById('modal-payment-details');
+        if (data.payment) {
+          payBox.innerHTML = `
+            <div><strong>Payment ID:</strong> <span style="font-family: monospace;">${data.payment.id}</span></div>
+            <div><strong>Total Payout:</strong> ${data.payment.currency} ${data.payment.amount.toFixed(2)}</div>
+            <div><strong>Payment Status:</strong> <span class="badge badge-${data.payment.status}">${data.payment.status}</span></div>
+            <div><strong>Provider Ref:</strong> ${data.payment.provider_reference || 'N/A'}</div>
+            <div><strong>Timestamp:</strong> ${data.payment.timestamp || 'N/A'}</div>
+          `;
+        } else {
+          payBox.innerHTML = `<em>No payment record generated yet.</em>`;
+        }
+
+        // Collection details
+        const collBox = document.getElementById('modal-collection-details');
+        if (data.collection_task) {
+          collBox.innerHTML = `
+            <div><strong>Task ID:</strong> <span style="font-family: monospace;">${data.collection_task.id}</span></div>
+            <div><strong>Logistics Status:</strong> <span class="badge badge-${data.collection_task.status}">${data.collection_task.status}</span></div>
+            <div><strong>Assigned Runner:</strong> ${data.collection_task.runner_id || 'Unassigned'}</div>
+            <div><strong>Pickup Location:</strong> ${data.collection_task.pickup_location}</div>
+            <div><strong>Scheduled Window:</strong> ${data.collection_task.scheduled_time_str || 'Standard'}</div>
+            ${data.collection_task.failure_reason ? `<div style="color: var(--danger);"><strong>Failure:</strong> ${data.collection_task.failure_reason}</div>` : ''}
+          `;
+        } else {
+          collBox.innerHTML = `<em>No collection task created yet.</em>`;
+        }
+
+        // Transcript
+        const transBox = document.getElementById('modal-transcript-box');
+        if (data.conversation && data.conversation.transcript && data.conversation.transcript.length) {
+          transBox.innerHTML = data.conversation.transcript.map(msg => `
+            <div class="transcript-entry ${msg.role}">
+              <strong>${msg.role === 'farmer' ? '🌾 Farmer' : '🤖 ORCA Agent'}:</strong> ${msg.text}
+            </div>
+          `).join('');
+        } else {
+          transBox.innerHTML = `<em>No conversational transcript available for this order.</em>`;
+        }
+
+        // Agent Trace & Decision Audit
+        const traceBox = document.getElementById('modal-traces-container');
+        const traces = data.traces || (data.conversation && data.conversation.traces) || [];
+        if (traces.length) {
+          traceBox.innerHTML = traces.map(t => {
+            const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : '-';
+            const fallbackBadge = t.fallback_occurred 
+              ? `<span class="badge badge-EXCEPTION" title="${t.fallback_reason || 'Fallback triggered'}">Fallback: Yes</span>`
+              : `<span class="badge badge-COMPLETED">Fallback: None</span>`;
+            const toolBadge = t.selected_tool ? `<span style="font-family: monospace; font-weight: 700; color: var(--primary);">${t.selected_tool}</span>` : '<em>None</em>';
+            const safeArgsStr = t.tool_arguments ? Object.entries(t.tool_arguments).map(([k,v]) => `${k}: ${v}`).join(', ') : '';
+
+            return `
+              <div style="background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.75rem; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.35rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="font-family: monospace; font-weight: 800; color: #1e293b;">${t.trace_id}</span>
+                  <span style="color: var(--text-muted); font-size: 0.72rem;">${timeStr}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-top: 0.25rem;">
+                  <div><strong>Intent:</strong> <span class="badge badge-ORDER_CONFIRMED">${t.intent}</span></div>
+                  <div><strong>Confidence:</strong> ${(t.confidence * 100).toFixed(0)}%</div>
+                  <div><strong>Classifier:</strong> ${t.classifier}</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                  <div><strong>Tool Invocation:</strong> ${toolBadge}</div>
+                  <div><strong>Safety / Fallback:</strong> ${fallbackBadge}</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); border-top: 1px dashed var(--border-color); padding-top: 0.3rem;">
+                  <span>State: <strong>${t.state_before}</strong> ➔ <strong>${t.state_after}</strong></span>
+                  ${safeArgsStr ? `<span>Args: <em>${safeArgsStr}</em></span>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          traceBox.innerHTML = `<em>No AgentTrace records recorded for this order.</em>`;
+        }
+
+        document.getElementById('order-modal').classList.add('active');
+      } catch (err) {
+        showToast(err.message, 'danger');
+      }
+    }
+
+    function closeOrderModal(e) {
+      if (e.target.id === 'order-modal') {
+        document.getElementById('order-modal').classList.remove('active');
+      }
+    }
+  </script>
+</body>
+</html>

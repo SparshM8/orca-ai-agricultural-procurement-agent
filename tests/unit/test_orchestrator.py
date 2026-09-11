@@ -10,8 +10,10 @@ Covers the 6 required scenarios:
 """
 
 import pytest
-from orca.agent.orchestrator import AgentOrchestrator, RuleBasedPatternExtractor
+from orca.agent.orchestrator import AgentOrchestrator, RuleBasedPatternExtractor, parse_pickup_timing
 from orca.domain.state_machine import OrderState
+from orca.services.order import order_service
+from orca.services.collection import collection_service
 
 
 @pytest.fixture
@@ -197,3 +199,170 @@ async def test_invalid_and_ambiguous_inputs(orchestrator: AgentOrchestrator):
     assert ctx3.offer.unit is None
     assert "unit" in out3.metadata["missing_fields"]
     assert "specify the measurement unit" in out3.text
+
+
+@pytest.mark.asyncio
+async def test_pickup_timing_tomorrow_at_10_am(orchestrator: AgentOrchestrator):
+    """Regression test: Farmer offers produce with 'tomorrow at 10 AM'.
+    
+    Verifies:
+    1. '10 AM' is extracted and normalized to 'tomorrow at 10:00 AM'.
+    2. Stored in dialogue context/schema.
+    3. Included in transaction summary ('Pickup Availability: tomorrow at 10:00 AM').
+    4. Persisted to order pickup datetime/time fields.
+    5. Passed into collection task ('Scheduled Window: tomorrow at 10:00 AM').
+    """
+    conv_id = "test_conv_time_tomorrow_10am"
+    message = "I have 50 kg of potatoes in Nairobi available tomorrow at 10 AM."
+
+    outbound = await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text=message,
+        farmer_id="farmer_time_01",
+    )
+
+    ctx = orchestrator._conversations[conv_id]
+    assert ctx.offer.produce_type == "potato"
+    assert ctx.offer.quantity == 50.0
+    assert ctx.offer.unit == "kg"
+    assert ctx.offer.pickup_location == "Nairobi"
+    assert ctx.offer.availability_window == "tomorrow at 10:00 AM"
+    assert ctx.offer.pickup_datetime == "tomorrow at 10:00 AM"
+    assert "- Pickup Availability: tomorrow at 10:00 AM" in outbound.text
+
+    # Confirm order
+    confirm_outbound = await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text="Confirm",
+        farmer_id="farmer_time_01",
+    )
+    order_id = ctx.current_order_id
+    assert order_id is not None
+    order = order_service.get_order(order_id)
+    assert order is not None
+    assert order.pickup_time_str == "tomorrow at 10:00 AM"
+    assert order.pickup_datetime is not None
+    assert "- Scheduled Window: tomorrow at 10:00 AM" in confirm_outbound.text
+
+    # Pay order -> triggers collection task
+    pay_outbound = await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text="Pay",
+        farmer_id="farmer_time_01",
+    )
+    task = collection_service.get_task_by_order(order_id)
+    assert task is not None
+    assert task.scheduled_time_str == "tomorrow at 10:00 AM"
+    assert task.scheduled_datetime is not None
+    assert "- Scheduled Window: tomorrow at 10:00 AM" in pay_outbound.text
+
+
+@pytest.mark.asyncio
+async def test_pickup_timing_friday_at_2_pm(orchestrator: AgentOrchestrator):
+    """Regression test: Farmer offers produce with 'Friday at 2 PM'.
+    
+    Verifies:
+    1. Capitalized and normalized to 'Friday at 2:00 PM'.
+    2. Stored in dialogue context/schema.
+    3. Included in transaction summary ('Pickup Availability: Friday at 2:00 PM').
+    4. Persisted to order and passed into collection task.
+    """
+    conv_id = "test_conv_time_friday_2pm"
+    message = "I have 50 kg of potatoes in Nairobi available Friday at 2 PM."
+
+    outbound = await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text=message,
+        farmer_id="farmer_time_02",
+    )
+
+    ctx = orchestrator._conversations[conv_id]
+    assert ctx.offer.produce_type == "potato"
+    assert ctx.offer.pickup_location == "Nairobi"
+    assert ctx.offer.availability_window == "Friday at 2:00 PM"
+    assert ctx.offer.pickup_datetime == "Friday at 2:00 PM"
+    assert "- Pickup Availability: Friday at 2:00 PM" in outbound.text
+
+    # Confirm order
+    await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text="Confirm",
+        farmer_id="farmer_time_02",
+    )
+    order = order_service.get_order(ctx.current_order_id)
+    assert order.pickup_time_str == "Friday at 2:00 PM"
+    assert order.pickup_datetime is not None
+
+    # Pay order -> collection task
+    await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text="Pay",
+        farmer_id="farmer_time_02",
+    )
+    task = collection_service.get_task_by_order(order.id)
+    assert task.scheduled_time_str == "Friday at 2:00 PM"
+    assert task.scheduled_datetime is not None
+
+
+@pytest.mark.asyncio
+async def test_pickup_timing_tomorrow_without_time(orchestrator: AgentOrchestrator):
+    """Regression test: Date-only input 'tomorrow' without time.
+    
+    Verifies that date-only inputs continue to work correctly without errors,
+    preserving 'tomorrow' as the availability window.
+    """
+    conv_id = "test_conv_time_tomorrow_date_only"
+    message = "I have 50 kg of potatoes in Nairobi available tomorrow."
+
+    outbound = await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text=message,
+        farmer_id="farmer_time_03",
+    )
+
+    ctx = orchestrator._conversations[conv_id]
+    assert ctx.offer.produce_type == "potato"
+    assert ctx.offer.pickup_location == "Nairobi"
+    assert ctx.offer.availability_window == "tomorrow"
+    assert ctx.offer.pickup_datetime is None
+    assert "- Pickup Availability: tomorrow" in outbound.text
+
+    # Confirm order
+    await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text="Confirm",
+        farmer_id="farmer_time_03",
+    )
+    order = order_service.get_order(ctx.current_order_id)
+    assert order.pickup_time_str == "tomorrow"
+    assert order.pickup_datetime is not None  # Target datetime calculated (default 9am)
+
+    # Pay order -> collection task
+    await orchestrator.process_message(
+        conversation_id=conv_id,
+        message_text="Pay",
+        farmer_id="farmer_time_03",
+    )
+    task = collection_service.get_task_by_order(order.id)
+    assert task.scheduled_time_str == "tomorrow"
+    assert task.scheduled_datetime is not None
+
+
+def test_rule_based_extractor_pickup_timing_variations():
+    """Unit test parser timing variations directly."""
+    dt1, str1 = parse_pickup_timing("tomorrow at 10 AM")
+    assert str1 == "tomorrow at 10:00 AM"
+    assert dt1 is not None
+
+    dt2, str2 = parse_pickup_timing("Friday at 2 PM")
+    assert str2 == "Friday at 2:00 PM"
+    assert dt2 is not None
+
+    dt3, str3 = parse_pickup_timing("tomorrow")
+    assert str3 == "tomorrow"
+    assert dt3 is not None
+
+    dt4, str4 = parse_pickup_timing("this Friday at 2 PM")
+    assert str4 == "this Friday at 2:00 PM"
+    assert dt4 is not None
+

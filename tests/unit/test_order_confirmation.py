@@ -21,8 +21,8 @@ from orca.db.repository import init_db, OrderRepository
 
 @pytest.fixture
 def orchestrator():
-    """Fresh orchestrator instance for testing."""
-    return AgentOrchestrator(auto_process_payment=False)
+    """Fresh orchestrator instance for testing order confirmation in isolation."""
+    return AgentOrchestrator(create_payment_request_on_confirm=False)
 
 
 @pytest.fixture

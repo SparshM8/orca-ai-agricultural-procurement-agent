@@ -2,7 +2,7 @@
 
 import uuid
 from datetime import datetime
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from orca.domain.models import Order
 from orca.domain.state_machine import OrderState, validate_transition
@@ -20,6 +20,11 @@ class OrderService:
         # Idempotency tracker: conversation_id -> order_id
         self._confirmed_conversations: Dict[str, str] = {}
 
+    def clear(self) -> None:
+        """Clear all in-memory orders and idempotency indices (used in demo reset / testing)."""
+        self._orders.clear()
+        self._confirmed_conversations.clear()
+
     def create_order(
         self,
         farmer_id: str,
@@ -31,6 +36,7 @@ class OrderService:
         region_code: str = "GLOBAL_DEFAULT",
         conversation_id: Optional[str] = None,
         pickup_datetime: Optional[datetime] = None,
+        pickup_time_str: Optional[str] = None,
     ) -> Order:
         """Create a validated order idempotently in memory.
 
@@ -86,6 +92,7 @@ class OrderService:
             total_amount=bill.total_amount,
             pickup_location=pickup_location,
             pickup_datetime=pickup_datetime,
+            pickup_time_str=pickup_time_str,
             status=OrderState.ORDER_CONFIRMED,
         )
 
@@ -106,6 +113,7 @@ class OrderService:
         region_code: str = "GLOBAL_DEFAULT",
         conversation_id: Optional[str] = None,
         pickup_datetime: Optional[datetime] = None,
+        pickup_time_str: Optional[str] = None,
         session: Optional[AsyncSession] = None,
     ) -> Order:
         """Create a validated order and persist to database using async session."""
@@ -129,6 +137,7 @@ class OrderService:
                     total_amount=existing_model.total_amount,
                     pickup_location=existing_model.pickup_location,
                     pickup_datetime=existing_model.pickup_datetime,
+                    pickup_time_str=getattr(existing_model, "pickup_time_str", None),
                     status=OrderState(existing_model.status),
                     created_at=existing_model.created_at,
                     updated_at=existing_model.updated_at,
@@ -148,6 +157,7 @@ class OrderService:
             region_code=region_code,
             conversation_id=conversation_id,
             pickup_datetime=pickup_datetime,
+            pickup_time_str=pickup_time_str,
         )
 
         # Persist to database
@@ -186,6 +196,7 @@ class OrderService:
             total_amount=order.total_amount,
             pickup_location=order.pickup_location,
             pickup_datetime=order.pickup_datetime,
+            pickup_time_str=order.pickup_time_str,
             status=order.status.value,
             conversation_id=conversation_id,
             created_at=order.created_at,
@@ -205,7 +216,26 @@ class OrderService:
 
         validate_transition(order.status, new_state)
         order.status = new_state
+        if new_state == OrderState.COMPLETED:
+            try:
+                from orca.services.farmer_profile import farmer_profile_service
+                farmer_profile_service.record_completed_order(
+                    farmer_id=order.farmer_id,
+                    produce=order.produce_type,
+                    quantity=order.quantity,
+                    unit=order.unit,
+                    order_id=order.id,
+                )
+            except Exception:
+                pass
         return order
+
+    def get_all_orders(self, status: Optional[str] = None) -> List[Order]:
+        """Retrieve all orders from store, optionally filtered by status."""
+        orders = list(self._orders.values())
+        if status:
+            orders = [o for o in orders if o.status.value == status or o.status == status]
+        return sorted(orders, key=lambda o: o.created_at or datetime.min, reverse=True)
 
 
 order_service = OrderService()
